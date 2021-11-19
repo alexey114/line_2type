@@ -1,0 +1,9 @@
+*{
+  background-color: #4d7eba;
+}
+
+.container{
+  max-width: 80vw;
+  margin: 0 auto;
+  text-align: center;
+}

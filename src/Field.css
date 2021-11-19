@@ -1,0 +1,11 @@
+.Field{
+    height: 80vh;
+    border: solid 5px;
+    border-radius: 25px;
+    background-color: white;
+  }
+
+  .Field_item{
+    width: 1px;
+    height: 1px;
+  }
