@@ -1,11 +1,10 @@
-.Field{
-    height: 80vh;
-    border: solid 5px;
-    border-radius: 25px;
-    background-color: white;
-  }
+.svg_field_block{
+  width: 350px;
+  border: black 1px solid;
+  margin-bottom: 20px;
+}
 
-  .Field_item{
-    width: 1px;
-    height: 1px;
-  }
+
+#line {
+  fill: none;
+}

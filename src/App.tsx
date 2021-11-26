@@ -1,12 +1,13 @@
 import React from 'react';
 import './App.css';
 import Field from './Field';
+import Button from './Button';
 
 function App() {
   return (
-    <div className="container">
-      <h1>Рисуй линии!</h1>
-      <Field />
+    <div className="container"> 
+        <Field/>
+        <Button/>
     </div>
   );
 }

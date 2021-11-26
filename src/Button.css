@@ -1,0 +1,50 @@
+button {
+    cursor: pointer;
+    appearance: none;
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    padding: 5px 10px;
+    margin: 2px;
+    font-size: 14px;
+  }
+  
+  .color_black{
+    background: black;
+  }
+  
+  .color_green{
+    background: green;
+  }
+  
+  .color_blue{
+    background: blue;
+  }
+  
+  .button_z{
+    background: red;
+  }
+  
+  .button_z:active {
+    background: rgb(141, 9, 9);
+    outline: none;
+    box-shadow: 0 0 0 4px #cbd6ee;
+  }
+
+  .color_black:active {
+    background: rgb(49, 36, 36);
+    outline: none;
+    box-shadow: 0 0 0 4px #cbd6ee;
+  }
+
+  .color_green:active {
+    background: rgb(1, 158, 119);
+    outline: none;
+    box-shadow: 0 0 0 4px #cbd6ee;
+  }
+
+  .color_blue:active {
+    background: rgb(49, 4, 134);
+    outline: none;
+    box-shadow: 0 0 0 4px #cbd6ee;
+  }
