@@ -34,15 +34,9 @@ class Field extends React.Component {
                       <path id="line" d={this.state.arrayClick.join(" ")} stroke="red"/>
 
                 </svg>
-                <h1>{this.state.arrayClick}</h1>
           </div>
 );
 }
 }
-
-function Ok() {
-  console.log('Ok');
-}
-Ok()
 
 export default Field;
