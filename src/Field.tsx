@@ -1,27 +1,29 @@
 import React from 'react';
 import './Field.css';
 
+export interface FieldClass {
+  arrayClick: any;
+}
 
+export class Field extends React.Component<{}, FieldClass> {
 
-class Field extends React.Component {
-
-  constructor(props) {
+  constructor(props:any) {
     super(props);
-    this.state = { arrayClick: [] }; //текущее состояние
+    this.state = { arrayClick:  [] }; //текущее состояние
 
     // Эта привязка обязательна для работы `this` в колбэке.
     this.arrClon = this.arrClon.bind(this);
   }
 
-  arrClon (event) {
+  arrClon (event:any) {
 
     if(this.state.arrayClick < 3){
       let arrClonAdd = this.state.arrayClick.concat(`M${event.clientX} ${event.clientY}`);
       this.setState({arrayClick:arrClonAdd});
     } else {
-      let arrClonT = this.state.arrayClick.concat(`L${event.clientX} ${event.clientY}`);
+      let arrClonL = this.state.arrayClick.concat(`L${event.clientX} ${event.clientY}`);
       console.log(event.clientX, event.clientY);
-      this.setState({arrayClick:arrClonT});
+      this.setState({arrayClick:arrClonL});
     };
       }
 
