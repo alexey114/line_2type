@@ -27,6 +27,7 @@ button {
 
   .save{
     background: rgb(219, 223, 12);
+    color:rgb(49, 36, 36);
   }
   
   .button_z:active {
