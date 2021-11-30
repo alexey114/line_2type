@@ -6,14 +6,31 @@ export interface ButtonClose {
     onClick: () => void;
     button: boolean;
     setButton: boolean;
+    color: any;
+    setColor: any;
 }
 
 
 const Button = ()=> {
 
-    const [buttonClick, setButtonClick] = useState(false);
-    const toggle = () => setButtonClick(!buttonClick)
+    const [buttonZ, setButtonZ] = useState(false);
+    const [buttonBlack, setButtonRed] = useState(false);
+    const [color, setColor] = useState("black");
+    // const [buttonGreen, setButtonGreen] = useState(false);
+    // const [buttonBlue, setButtonBlue] = useState(false);
 
+    const toggleButtonZ = () => {
+        setButtonZ(!buttonZ);
+    }
+
+    const toggleButtonRed = () => {
+        setButtonRed(!buttonBlack)
+         const changeColor = (color:any)=> {
+            setColor("red")
+        }
+    }
+    // const toggleButtonGreen = () => setButtonGreen(!buttonGreen)
+    // const toggleButtonBlue = () => setButtonBlue(!buttonBlue)
     
 //--------------------------------------------------------------------
 
@@ -81,10 +98,10 @@ const Button = ()=> {
       
           return (
             <div>
-                <button className="button_z" onClick={toggle}>{buttonClick ? 'Закрытие линий вкл' : 'Закрытие линий выкл'}</button>
-                <button className="color_black" onClick={toggle}>{buttonClick ? 'Черный вкл' : 'Черный выкл'} </button>
-                <button className="color_green" onClick={toggle}> {buttonClick ? 'Зеленый вкл' : 'Зеленый выкл'}</button>
-                <button className="color_blue" onClick={toggle}>{buttonClick ? 'Синий вкл' : 'Синий выкл'} </button>
+                <button className="button_z" onClick={toggleButtonZ}>{buttonZ ? 'Закрытие линий вкл' : 'Закрытие линий выкл'}</button>
+                <button className="color_black" onClick={toggleButtonRed}>{buttonBlack ? 'Красный вкл' : 'Красный выкл'} </button>
+                {/* <button className="color_green" onClick={toggleButtonGreen}> {buttonGreen ? 'Зеленый вкл' : 'Зеленый выкл'}</button>
+                <button className="color_blue" onClick={toggleButtonBlue}>{buttonBlue ? 'Синий вкл' : 'Синий выкл'} </button> */}
             </div>
           );
 
