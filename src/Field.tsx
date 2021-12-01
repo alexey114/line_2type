@@ -7,7 +7,7 @@ interface IFieldProps {
 
 export interface IFieldState {
   arrayCoordinate: string, //Array<number|string> // (number | string)[]
-  addCordinateArray:string, // (number | string)[]
+  addCordinateArray:  (number)[], // (number | string)[]
   localStorageCoordinate: string,
   color: string,
   buttonRed: boolean,
@@ -18,12 +18,11 @@ export interface IFieldState {
 
 export class Field extends React.Component<IFieldProps, IFieldState> {
 
-
   constructor(props: IFieldProps) {
     super(props);
     this.state = {
       arrayCoordinate: "",
-      addCordinateArray: "",
+      addCordinateArray: [],
       localStorageCoordinate: "",
       color: "black",
       buttonRed: false,
@@ -37,7 +36,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.textChange = this.textChange.bind(this);
     this.buttonSave = this.buttonSave.bind(this);
     this.colorChange = this.colorChange.bind(this);
-    // this.addCordinateArrayAll = this.addCordinateArrayAll.bind(this);
+    this.addCordinateArrayAll = this.addCordinateArrayAll.bind(this);
     this.coordinateSave = this.coordinateSave.bind(this);
     this.coordinateLoad = this.coordinateLoad.bind(this);
     this.completeFigureButton = this.completeFigureButton.bind(this);
@@ -64,11 +63,12 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   }
 
   coordinateLoad = () => {
-    let localStorageCoordinate = JSON.parse(localStorage.getItem("arrayCoordinateJSON")!);
+    let localStorageCoordinate = localStorage.getItem("arrayCoordinateJSON")!;
     if(localStorageCoordinate.length < 1) {
       alert("LocalStorage пуст")
-    } 
-    console.log(localStorageCoordinate)
+    }
+    console.log("localStorageCoordinate:", localStorageCoordinate);
+    return localStorageCoordinate;
   }
 
   buttonLoad() {
@@ -99,14 +99,14 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   // ________________________________________Cordinate_______________________________________  //
 
-  // addCordinateArrayAll(event: React.MouseEvent) {
-  //   this.setState({ addCordinateArray: this.state.addCordinateArray.concat(`${event.clientX}, ${event.clientY},`) });
-  //   console.table(arrClonAddAll);
-  // }
 
-  arrClon(event: React.MouseEvent) {
-    // this.addCordinateArrayAll(event);
+  addCordinateArrayAll(event: React.MouseEvent) {
+    this.setState({ addCordinateArray: (this.state.addCordinateArray.concat(event.clientX, event.clientY))});
+  }
 
+   arrClon(event: React.MouseEvent) {
+    this.addCordinateArrayAll(event);
+    console.log(this.state.addCordinateArray);
     this.setState({ arrayCoordinate: (this.state.arrayCoordinate.concat((this.state.arrayCoordinate.length < 1) ? (`M${event.clientX} ${event.clientY}`) :
       (`L${event.clientX} ${event.clientY}`)))});
   }
