@@ -9,12 +9,14 @@ export interface IFieldState {
   arrayCoordinate: (number | string)[], //Array<number|string>
   addCordinateArray: (number | string)[],
   color: string,
-  buttonRed: string,
-  buttonSave: string,
-  buttonZ: string
+  buttonRed: boolean,
+  buttonSave: boolean,
+  buttonZ: boolean
 }
 
 export class Field extends React.Component<IFieldProps, IFieldState> {
+
+  
 
   constructor(props: IFieldProps) {
     super(props);
@@ -22,9 +24,9 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       arrayCoordinate: [],
       addCordinateArray: [],
       color: "black",
-      buttonRed: "Красный выкл",
-      buttonSave: "Сохранить",
-      buttonZ: "Закрытие линий выкл"
+      buttonRed: false,
+      buttonSave: false,
+      buttonZ: false,
     }; //текущее состояние
 
     // Эта привязка обязательна для работы `this` в колбэке.
@@ -37,49 +39,51 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.completeFigureButton = this.completeFigureButton.bind(this);
   }
 
-  //   toggleButtonRed = () => {
-  //     setButtonRed(!buttonBlack)
-  //      const changeColor = (color:any)=> {
-  //         setColor("red")
-  //     }
-  // }
-
   textChange() {
-    this.setState({ buttonRed: "Красный вкл" });
+    let buttonRedTextStatus = (this.state.buttonRed === false) ? true:false;
+    this.setState({ buttonRed: buttonRedTextStatus });
   }
 
   colorChange() {
-    this.setState({ color: "red" });
+    let buttonRedColor = (this.state.color === "red") ? "black":"red";
+    this.setState({ color: buttonRedColor });
     this.textChange()
   }
 
   textChangeSave() {
-    this.setState({ buttonSave: "Сохранено" });
+    this.setState({ buttonSave: true });
+    alert('Coxpaнено')
   }
 
   // ________________________________________Local Storage_______________________________________  //
 
   coordinateSave() {
+    if (this.state.arrayCoordinate.length > 1) {
     localStorage.setItem("arrayCoordinate", JSON.stringify(this.state.arrayCoordinate));
     let localStorageCoordinate = localStorage.getItem("arrayCoordinate");
     console.log("localStorageCoordinate:", localStorageCoordinate);
 
     this.textChangeSave()
+    } else {
+      alert('нарисуйте минимум одну линию')
+    }
   }
 
 
   // ________________________________________Local Storage END_______________________________________  //
 
   completeFigureText () {
-      this.setState({ buttonZ: "Закрытие линий вкл" });
+      this.setState(() => { return {buttonZ: true }});
   }
 
   completeFigureButton() {
 
     if (this.state.arrayCoordinate.length > 2) {
-      this.completeFigureText ();
       let arrClonAdd = this.state.arrayCoordinate.concat("Z");
       this.setState({ arrayCoordinate: arrClonAdd });
+      this.completeFigureText ();
+    } else {
+      alert("нарисуйте минимум 2 линии")
     }
   }
 
@@ -88,12 +92,6 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.setState({ addCordinateArray: arrClonAddAll });
     console.table(arrClonAddAll);
   }
-
-  // componentDidUpdate (prevState) {
-  //   if (this.state.color === prevState.color) {
-  //     this.setState(this.state.color);
-  //   }
-  // }
 
   arrClon(event: any) {
     this.addCordinateArrayAll(event);
@@ -114,9 +112,9 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
           <path id="line" d={this.state.arrayCoordinate.join(" ")} stroke={this.state.color} />
         </svg>
 
-        <button className="button_z" onClick={this.completeFigureButton}>{this.state.buttonZ}</button>
-        <button className="color_black" onClick={this.colorChange}>{this.state.buttonRed} </button>
-        <button className="save" onClick={this.coordinateSave}>{this.state.buttonSave} </button>
+        <button className="button_z" onClick={()=>this.completeFigureButton()}>Соединить точки</button>
+        <button className="color_black" onClick={()=>this.colorChange()}>{this.state.buttonRed ? "Красный вкл" : "Красный выкл"} </button>
+        <button className="save" onClick={()=>this.coordinateSave()}>Сохранить рисунок </button>
 
 
       </div>
