@@ -44,13 +44,11 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   }
 
   textChange() {
-    let buttonRedTextStatus = (this.state.buttonRed === false) ? true : false;
-    this.setState({ buttonRed: buttonRedTextStatus });
+    this.setState({ buttonRed: (this.state.buttonRed === false) ? true : false });
   }
 
   colorChange() {
-    let buttonRedColor = (this.state.color === "red") ? "black" : "red";
-    this.setState({ color: buttonRedColor });
+    this.setState({ color: (this.state.color === "red") ? "black" : "red" });
     this.textChange()
   }
 
@@ -83,8 +81,6 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     alert('Coxpaнено')
   }
 
-
-
   // ________________________________________Local Storage END_______________________________________  //
 
   completeFigureText() {
@@ -94,8 +90,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   completeFigureButton() {
 
     if (this.state.arrayCoordinate.length > 2) {
-      let arrClonAdd = this.state.arrayCoordinate.concat("Z"); //push
-      this.setState({ arrayCoordinate: arrClonAdd });
+      this.setState({ arrayCoordinate: this.state.arrayCoordinate.concat("Z") });
       this.completeFigureText();
     } else {
       alert("нарисуйте минимум 2 линии")
@@ -105,8 +100,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   // ________________________________________Cordinate_______________________________________  //
 
   // addCordinateArrayAll(event: React.MouseEvent) {
-  //   let arrClonAddAll = this.state.addCordinateArray.concat(`${event.clientX}, ${event.clientY},`);
-  //   this.setState({ addCordinateArray: arrClonAddAll });
+  //   this.setState({ addCordinateArray: this.state.addCordinateArray.concat(`${event.clientX}, ${event.clientY},`) });
   //   console.table(arrClonAddAll);
   // }
 
