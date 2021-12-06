@@ -6,54 +6,50 @@ interface IFieldProps {
 }
 
 export interface IFieldState {
-  arrayCoordinate: string, //Array<number|string> // (number | string)[]
-  addCordinateArray: (number)[], // (number | string)[]
+  // arrayCoordinate: string, //Array<number|string> // (number | string)[]
+  addCoordinateArray: {x:number, y:number}[], // (number | string)[]
+  addCoordinate: {x:number, y:number}[], // (number | string)[]
   localStorageCoordinate: string,
-  createArrObjFile: (object)[],
-  createArrObjFile2: (object)[],
   color: string,
   localStorageColor: string,
   buttonRed: boolean,
   buttonSave: boolean,
   buttonLoad: boolean,
   buttonZ: boolean,
-  drawingCoordinate: any,
-  drawingCoordinateFinal: string
+  drawingCoordinate: string
 }
 
 export class Field extends React.Component<IFieldProps, IFieldState> {
-
-  drawingCoordinateFinal: string | undefined
+  drawingCoordinate: string | undefined;
 
   constructor(props: IFieldProps) {
     super(props);
 
     this.state = {
-      arrayCoordinate: "",
-      addCordinateArray: [],
+      // arrayCoordinate: "",
+      addCoordinateArray: [],
+      addCoordinate:[],
       localStorageCoordinate: "",
-      createArrObjFile: [],
-      createArrObjFile2: [],
       color: "black",
       localStorageColor: "",
       buttonRed: false,
       buttonSave: false,
       buttonLoad: false,
       buttonZ: false,
-      drawingCoordinate: "",
-      drawingCoordinateFinal: ""
+      drawingCoordinate: ""
     }; //текущее состояние
 
     // Эта привязка обязательна для работы `this` в колбэке.
-    this.arrClon = this.arrClon.bind(this);
+    // this.arrClon = this.arrClon.bind(this);
     this.textChange = this.textChange.bind(this);
     this.buttonSave = this.buttonSave.bind(this);
     this.colorChange = this.colorChange.bind(this);
-    this.addCordinateArrayAll = this.addCordinateArrayAll.bind(this);
+    this.addCoordinateToArray = this.addCoordinateToArray.bind(this);
     this.coordinateSave = this.coordinateSave.bind(this);
     this.coordinateLoad = this.coordinateLoad.bind(this);
     this.completeFigureButton = this.completeFigureButton.bind(this);
-
+    // this.createArrObj = this.createArrObj.bind(this);
+    this.drawingSvg = this.drawingSvg.bind(this);
 
   }
 
@@ -69,8 +65,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   // ________________________________________Local Storage_______________________________________  //
 
   coordinateSave() {
-    if (this.state.arrayCoordinate.length > 0) {
-      localStorage.setItem("arrayCoordinateLocalStorage", this.state.arrayCoordinate);
+    if (this.state.drawingCoordinate.length > 0) {
+      localStorage.setItem("drawingCoordinateLocalStorage", this.state.drawingCoordinate);
       localStorage.setItem("colorLocalStorage", this.state.color);
       this.buttonSave()
     } else {
@@ -79,12 +75,12 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   }
 
   coordinateLoad = () => {
-    let localStorageCoordinate = localStorage.getItem("arrayCoordinateLocalStorage")!;
+    let localStorageCoordinate = localStorage.getItem("drawingCoordinateLocalStorage")!;
     let localStorageColor = localStorage.getItem("colorLocalStorage")!;
     if (localStorageCoordinate === null) {
       alert("LocalStorage пуст")
     } else {
-      this.setState({arrayCoordinate: localStorageCoordinate});
+      this.setState({drawingCoordinate: localStorageCoordinate});
 
       if(localStorageColor !== this.state.color) {
         this.setState({color: localStorageColor});
@@ -108,7 +104,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   }
 
   buttonRemove() {
-    this.setState({arrayCoordinate: ""});
+    this.setState({drawingCoordinate: ""});
   }
 
   // ________________________________________Local Storage END_______________________________________  //
@@ -119,8 +115,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   completeFigureButton() {
 
-    if (this.state.arrayCoordinate.length > 2) {
-      this.setState({ arrayCoordinate: this.state.arrayCoordinate.concat("Z") });
+    if (this.state.drawingCoordinate.length > 2) {
+      this.setState({ drawingCoordinate: this.state.drawingCoordinate.concat("Z") });
       this.completeFigureText();
     } else {
       alert("нарисуйте минимум 2 линии")
@@ -129,33 +125,61 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   // ________________________________________Cordinate_______________________________________  //
 
+  //!!!
 
-  addCordinateArrayAll(event: React.MouseEvent) {
-    this.setState({ addCordinateArray: (this.state.addCordinateArray.concat(event.clientX, event.clientY)) });
+  addCoordinateToArray(event: React.MouseEvent) {
+    this.state.addCoordinate.push({x:event.clientX, y:event.clientY});
+    this.setState({addCoordinateArray: this.state.addCoordinate})
+    // console.log(this.state.addCoordinateArray)
+    // console.log({x:event.clientX, y:event.clientY})
   }
 
-  arrClon(event: React.MouseEvent) {
-    this.addCordinateArrayAll(event);
-    console.log(this.state.addCordinateArray);
-    this.setState({
-      arrayCoordinate:
-        (this.state.arrayCoordinate.concat((this.state.arrayCoordinate.length < 1) ?
-          (`M${event.clientX} ${event.clientY}`) :
-          (`L${event.clientX} ${event.clientY}`)))
-    });
+  // arrClon(event: React.MouseEvent) {
+  //   this.addCoordinateToArray(event);
+
+  //   this.setState({
+  //     drawingCoordinate:
+  //       (this.state.drawingCoordinate.concat((this.state.drawingCoordinate.length < 1) ?
+  //         (`M${event.clientX} ${event.clientY}`) :
+  //         (`L${event.clientX} ${event.clientY}`)))
+  //   });
+  // }
+
+// ________________________________________Cordinate END_______________________________________  //
+
+// ________________________________________drawingSvg_______________________________________  //
+
+  drawingSvg(event: React.MouseEvent) {
+
+    this.addCoordinateToArray (event)
+
+    let drawingCoordinate = "";
+
+    this.state.addCoordinateArray.forEach((element:{x:number, y:number}, index:number)=>{
+ 
+      if(index === 0) {
+        drawingCoordinate += `M${this.state.addCoordinateArray[index].x} ${this.state.addCoordinateArray[index].y}`
+      } else {
+        drawingCoordinate += `L${this.state.addCoordinateArray[index].x} ${this.state.addCoordinateArray[index].y}`
+      }
+
+    })
+
+    this.setState({drawingCoordinate: drawingCoordinate})
+
+    console.log(drawingCoordinate)
+    console.log({x:event.clientX, y:event.clientY})
   }
 
-
-
-  // ________________________________________Cordinate END_______________________________________  //
+  // ________________________________________drawingSvg END_______________________________________  //
 
   render() {
     return (
 
       <div>
 
-        <svg onClick={this.arrClon} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
-          <path id="line" d={this.state.arrayCoordinate} stroke={this.state.color} />
+        <svg onClick={this.drawingSvg} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
+          <path id="line" d={this.state.drawingCoordinate} stroke={this.state.color} />
         </svg>
 
         <button className="buttonZ" onClick={() => this.completeFigureButton()}>Соединить точки</button>
