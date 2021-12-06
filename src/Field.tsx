@@ -7,28 +7,41 @@ interface IFieldProps {
 
 export interface IFieldState {
   arrayCoordinate: string, //Array<number|string> // (number | string)[]
-  addCordinateArray:  (number)[], // (number | string)[]
+  addCordinateArray: (number)[], // (number | string)[]
   localStorageCoordinate: string,
+  createArrObjFile: (object)[],
+  createArrObjFile2: (object)[],
   color: string,
+  localStorageColor: string,
   buttonRed: boolean,
   buttonSave: boolean,
   buttonLoad: boolean,
-  buttonZ: boolean
+  buttonZ: boolean,
+  drawingCoordinate: any,
+  drawingCoordinateFinal: string
 }
 
 export class Field extends React.Component<IFieldProps, IFieldState> {
 
+  drawingCoordinateFinal: string | undefined
+
   constructor(props: IFieldProps) {
     super(props);
+
     this.state = {
       arrayCoordinate: "",
       addCordinateArray: [],
       localStorageCoordinate: "",
+      createArrObjFile: [],
+      createArrObjFile2: [],
       color: "black",
+      localStorageColor: "",
       buttonRed: false,
       buttonSave: false,
       buttonLoad: false,
       buttonZ: false,
+      drawingCoordinate: "",
+      drawingCoordinateFinal: ""
     }; //текущее состояние
 
     // Эта привязка обязательна для работы `this` в колбэке.
@@ -40,6 +53,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.coordinateSave = this.coordinateSave.bind(this);
     this.coordinateLoad = this.coordinateLoad.bind(this);
     this.completeFigureButton = this.completeFigureButton.bind(this);
+
+
   }
 
   textChange() {
@@ -55,7 +70,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   coordinateSave() {
     if (this.state.arrayCoordinate.length > 0) {
-      localStorage.setItem("arrayCoordinateJSON", JSON.stringify(this.state.arrayCoordinate));
+      localStorage.setItem("arrayCoordinateLocalStorage", this.state.arrayCoordinate);
+      localStorage.setItem("colorLocalStorage", this.state.color);
       this.buttonSave()
     } else {
       alert('нарисуйте минимум одну линию')
@@ -63,12 +79,27 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   }
 
   coordinateLoad = () => {
-    let localStorageCoordinate = localStorage.getItem("arrayCoordinateJSON")!;
-    if(localStorageCoordinate.length < 1) {
+    let localStorageCoordinate = localStorage.getItem("arrayCoordinateLocalStorage")!;
+    let localStorageColor = localStorage.getItem("colorLocalStorage")!;
+    if (localStorageCoordinate === null) {
       alert("LocalStorage пуст")
+    } else {
+      this.setState({arrayCoordinate: localStorageCoordinate});
+
+      if(localStorageColor !== this.state.color) {
+        this.setState({color: localStorageColor});
+        this.colorChange();
+      }
+      
+
+      console.log("localStorageCoordinate:", localStorageCoordinate);
+      console.log("colorLocalStorage:", localStorageColor);
     }
-    console.log("localStorageCoordinate:", localStorageCoordinate);
-    return localStorageCoordinate;
+  }
+
+  buttonSave() {
+    this.setState({ buttonSave: true });
+    alert('Coxpaнено')
   }
 
   buttonLoad() {
@@ -76,9 +107,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.coordinateLoad();
   }
 
-  buttonSave() {
-    this.setState({ buttonSave: true });
-    alert('Coxpaнено')
+  buttonRemove() {
+    this.setState({arrayCoordinate: ""});
   }
 
   // ________________________________________Local Storage END_______________________________________  //
@@ -101,15 +131,21 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
 
   addCordinateArrayAll(event: React.MouseEvent) {
-    this.setState({ addCordinateArray: (this.state.addCordinateArray.concat(event.clientX, event.clientY))});
+    this.setState({ addCordinateArray: (this.state.addCordinateArray.concat(event.clientX, event.clientY)) });
   }
 
-   arrClon(event: React.MouseEvent) {
+  arrClon(event: React.MouseEvent) {
     this.addCordinateArrayAll(event);
     console.log(this.state.addCordinateArray);
-    this.setState({ arrayCoordinate: (this.state.arrayCoordinate.concat((this.state.arrayCoordinate.length < 1) ? (`M${event.clientX} ${event.clientY}`) :
-      (`L${event.clientX} ${event.clientY}`)))});
+    this.setState({
+      arrayCoordinate:
+        (this.state.arrayCoordinate.concat((this.state.arrayCoordinate.length < 1) ?
+          (`M${event.clientX} ${event.clientY}`) :
+          (`L${event.clientX} ${event.clientY}`)))
+    });
   }
+
+
 
   // ________________________________________Cordinate END_______________________________________  //
 
@@ -124,8 +160,10 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
         <button className="buttonZ" onClick={() => this.completeFigureButton()}>Соединить точки</button>
         <button className="colorRed" onClick={() => this.colorChange()}>{this.state.buttonRed ? "Красный вкл" : "Красный выкл"} </button>
-        <button className="save" onClick={() => this.coordinateSave()}> Сохранить рисунок </button>
-        <button className="save" onClick={() => this.buttonLoad()}> Загрузить рисунок </button>
+        <br/>
+        <button className="save" onClick={() => this.coordinateSave()}> Сохранить </button>
+        <button className="save" onClick={() => this.buttonLoad()}> Загрузить </button>
+        <button className="save" onClick={() => this.buttonRemove()}> Очистить </button>
 
       </div>
     );
