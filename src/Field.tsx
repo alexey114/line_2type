@@ -6,9 +6,8 @@ interface IFieldProps {
 }
 
 export interface IFieldState {
-  // arrayCoordinate: string, //Array<number|string> // (number | string)[]
-  addCoordinateArray: {x:number, y:number}[], // (number | string)[]
-  addCoordinate: {x:number, y:number}[], // (number | string)[]
+  addCoordinateArray: {x:number, y:number}[],
+  addCoordinate: {x:number, y:number}[],
   localStorageCoordinate: string,
   color: string,
   localStorageColor: string,
@@ -20,13 +19,11 @@ export interface IFieldState {
 }
 
 export class Field extends React.Component<IFieldProps, IFieldState> {
-  drawingCoordinate: string | undefined;
 
   constructor(props: IFieldProps) {
     super(props);
 
     this.state = {
-      // arrayCoordinate: "",
       addCoordinateArray: [],
       addCoordinate:[],
       localStorageCoordinate: "",
@@ -37,10 +34,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       buttonLoad: false,
       buttonZ: false,
       drawingCoordinate: ""
-    }; //текущее состояние
+    };
 
-    // Эта привязка обязательна для работы `this` в колбэке.
-    // this.arrClon = this.arrClon.bind(this);
     this.textChange = this.textChange.bind(this);
     this.buttonSave = this.buttonSave.bind(this);
     this.colorChange = this.colorChange.bind(this);
@@ -48,7 +43,6 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.coordinateSave = this.coordinateSave.bind(this);
     this.coordinateLoad = this.coordinateLoad.bind(this);
     this.completeFigureButton = this.completeFigureButton.bind(this);
-    // this.createArrObj = this.createArrObj.bind(this);
     this.drawingSvg = this.drawingSvg.bind(this);
 
   }
@@ -86,10 +80,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
         this.setState({color: localStorageColor});
         this.colorChange();
       }
-      
 
-      console.log("localStorageCoordinate:", localStorageCoordinate);
-      console.log("colorLocalStorage:", localStorageColor);
     }
   }
 
@@ -125,25 +116,13 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   // ________________________________________Cordinate_______________________________________  //
 
-  //!!!
-
   addCoordinateToArray(event: React.MouseEvent) {
+
     this.state.addCoordinate.push({x:event.clientX, y:event.clientY});
+
     this.setState({addCoordinateArray: this.state.addCoordinate})
-    // console.log(this.state.addCoordinateArray)
-    // console.log({x:event.clientX, y:event.clientY})
   }
 
-  // arrClon(event: React.MouseEvent) {
-  //   this.addCoordinateToArray(event);
-
-  //   this.setState({
-  //     drawingCoordinate:
-  //       (this.state.drawingCoordinate.concat((this.state.drawingCoordinate.length < 1) ?
-  //         (`M${event.clientX} ${event.clientY}`) :
-  //         (`L${event.clientX} ${event.clientY}`)))
-  //   });
-  // }
 
 // ________________________________________Cordinate END_______________________________________  //
 
@@ -153,37 +132,36 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
     this.addCoordinateToArray (event)
 
-    let drawingCoordinate = "";
+    let drawingCoordinateFinal = "";
+    let pointM = "M";
+    let pointL = "L";
 
     this.state.addCoordinateArray.forEach((element:{x:number, y:number}, index:number)=>{
- 
-      if(index === 0) {
-        drawingCoordinate += `M${this.state.addCoordinateArray[index].x} ${this.state.addCoordinateArray[index].y}`
-      } else {
-        drawingCoordinate += `L${this.state.addCoordinateArray[index].x} ${this.state.addCoordinateArray[index].y}`
-      }
+      drawingCoordinateFinal += ((index === 0)?pointM:pointL) + String(this.state.addCoordinateArray[index].x) + " " + String(this.state.addCoordinateArray[index].y)
 
     })
 
-    this.setState({drawingCoordinate: drawingCoordinate})
-
-    console.log(drawingCoordinate)
-    console.log({x:event.clientX, y:event.clientY})
+    this.setState({drawingCoordinate: drawingCoordinateFinal})
   }
 
   // ________________________________________drawingSvg END_______________________________________  //
 
   render() {
+
+      const drawingCoordinateFinal = this.state.drawingCoordinate
+      const colorFinal = this.state.color
+      const buttonRedFinal = this.state.buttonRed
+      
     return (
 
       <div>
 
         <svg onClick={this.drawingSvg} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
-          <path id="line" d={this.state.drawingCoordinate} stroke={this.state.color} />
+          <path id="line" d={drawingCoordinateFinal} stroke={colorFinal} />
         </svg>
 
         <button className="buttonZ" onClick={() => this.completeFigureButton()}>Соединить точки</button>
-        <button className="colorRed" onClick={() => this.colorChange()}>{this.state.buttonRed ? "Красный вкл" : "Красный выкл"} </button>
+        <button className="colorRed" onClick={() => this.colorChange()}>{buttonRedFinal ? "Красный вкл" : "Красный выкл"} </button>
         <br/>
         <button className="save" onClick={() => this.coordinateSave()}> Сохранить </button>
         <button className="save" onClick={() => this.buttonLoad()}> Загрузить </button>
