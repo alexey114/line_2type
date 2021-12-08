@@ -6,8 +6,8 @@ interface IFieldProps {
 }
 
 export interface IFieldState {
-  addCoordinateArray: {x:number, y:number}[],
-  addCoordinate: {x:number, y:number}[],
+  addCoordinateArray: { x: number, y: number }[],
+  addCoordinate: { x: number, y: number }[],
   localStorageCoordinate: string,
   color: string,
   localStorageColor: string,
@@ -25,7 +25,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
     this.state = {
       addCoordinateArray: [],
-      addCoordinate:[],
+      addCoordinate: [],
       localStorageCoordinate: "",
       color: "black",
       localStorageColor: "",
@@ -47,16 +47,17 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   }
 
+  //Изменение текста кнопки
   textChange() {
     this.setState({ buttonRed: (this.state.buttonRed === false) ? true : false });
   }
-
+//Изменение цвета линий
   colorChange() {
     this.setState({ color: (this.state.color === "red") ? "black" : "red" });
     this.textChange()
   }
 
-  // ________________________________________Local Storage_______________________________________  //
+  //Сохранение в Local Storage
 
   coordinateSave() {
     if (this.state.drawingCoordinate.length > 0) {
@@ -68,37 +69,45 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     }
   }
 
+  //Загрузка из Local Storage
+
   coordinateLoad = () => {
     let localStorageCoordinate = localStorage.getItem("drawingCoordinateLocalStorage")!;
     let localStorageColor = localStorage.getItem("colorLocalStorage")!;
     if (localStorageCoordinate === null) {
       alert("LocalStorage пуст")
     } else {
-      this.setState({drawingCoordinate: localStorageCoordinate});
+      this.setState({ drawingCoordinate: localStorageCoordinate });
 
-      if(localStorageColor !== this.state.color) {
-        this.setState({color: localStorageColor});
+      if (localStorageColor !== this.state.color) {
+        this.setState({ color: localStorageColor });
         this.colorChange();
       }
 
     }
   }
 
+  //Кнопка сохранения в Local Storage
+
   buttonSave() {
     this.setState({ buttonSave: true });
     alert('Coxpaнено')
   }
+
+  //Кнопка загрузки из Local Storage
 
   buttonLoad() {
     this.setState({ buttonLoad: true });
     this.coordinateLoad();
   }
 
+  //Очистка SVG поля для рисования
+
   buttonRemove() {
-    this.setState({drawingCoordinate: ""});
+    this.setState({ drawingCoordinate: "" });
   }
 
-  // ________________________________________Local Storage END_______________________________________  //
+  //Кнопка 
 
   completeFigureText() {
     this.setState(() => { return { buttonZ: true } });
@@ -118,40 +127,40 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   addCoordinateToArray(event: React.MouseEvent) {
 
-    this.state.addCoordinate.push({x:event.clientX, y:event.clientY});
+    this.state.addCoordinate.push({ x: event.clientX, y: event.clientY });
 
-    this.setState({addCoordinateArray: this.state.addCoordinate})
+    this.setState({ addCoordinateArray: this.state.addCoordinate })
   }
 
 
-// ________________________________________Cordinate END_______________________________________  //
+  // ________________________________________Cordinate END_______________________________________  //
 
-// ________________________________________drawingSvg_______________________________________  //
+  // ________________________________________drawingSvg_______________________________________  //
 
   drawingSvg(event: React.MouseEvent) {
 
-    this.addCoordinateToArray (event)
+    this.addCoordinateToArray(event)
 
     let drawingCoordinateFinal = "";
     let pointM = "M";
     let pointL = "L";
 
-    this.state.addCoordinateArray.forEach((element:{x:number, y:number}, index:number)=>{
-      drawingCoordinateFinal += ((index === 0)?pointM:pointL) + this.state.addCoordinateArray[index].x + " " + this.state.addCoordinateArray[index].y
+    this.state.addCoordinateArray.forEach((element: { x: number, y: number }, index: number) => {
+      drawingCoordinateFinal += ((index === 0) ? pointM : pointL) + this.state.addCoordinateArray[index].x + " " + this.state.addCoordinateArray[index].y
 
     })
 
-    this.setState({drawingCoordinate: drawingCoordinateFinal})
+    this.setState({ drawingCoordinate: drawingCoordinateFinal })
   }
 
   // ________________________________________drawingSvg END_______________________________________  //
 
   render() {
 
-      const drawingLine = this.state.drawingCoordinate
-      const colorFinal = this.state.color
-      const buttonRedFinal = this.state.buttonRed
-      
+    const drawingLine = this.state.drawingCoordinate
+    const colorFinal = this.state.color
+    const buttonRedFinal = this.state.buttonRed
+
     return (
 
       <div>
@@ -162,7 +171,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
         <button className="buttonZ" onClick={() => this.completeFigureButton()}>Соединить точки</button>
         <button className="colorRed" onClick={() => this.colorChange()}>{buttonRedFinal ? "Красный вкл" : "Красный выкл"} </button>
-        <br/>
+        <br />
         <button className="save" onClick={() => this.coordinateSave()}> Сохранить </button>
         <button className="save" onClick={() => this.buttonLoad()}> Загрузить </button>
         <button className="save" onClick={() => this.buttonRemove()}> Очистить </button>
