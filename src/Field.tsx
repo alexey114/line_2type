@@ -148,7 +148,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   render() {
 
-      const drawingCoordinateFinal = this.state.drawingCoordinate
+      const drawingLine = this.state.drawingCoordinate
       const colorFinal = this.state.color
       const buttonRedFinal = this.state.buttonRed
       
@@ -157,7 +157,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       <div>
 
         <svg onClick={this.drawingSvg} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
-          <path id="line" d={drawingCoordinateFinal} stroke={colorFinal} />
+          <path id="line" d={drawingLine} stroke={colorFinal} />
         </svg>
 
         <button className="buttonZ" onClick={() => this.completeFigureButton()}>Соединить точки</button>
