@@ -137,7 +137,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     let pointL = "L";
 
     this.state.addCoordinateArray.forEach((element:{x:number, y:number}, index:number)=>{
-      drawingCoordinateFinal += ((index === 0)?pointM:pointL) + String(this.state.addCoordinateArray[index].x) + " " + String(this.state.addCoordinateArray[index].y)
+      drawingCoordinateFinal += ((index === 0)?pointM:pointL) + this.state.addCoordinateArray[index].x + " " + this.state.addCoordinateArray[index].y
 
     })
 
