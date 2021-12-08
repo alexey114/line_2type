@@ -51,7 +51,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   textChange() {
     this.setState({ buttonRed: (this.state.buttonRed === false) ? true : false });
   }
-//Изменение цвета линий
+  //Изменение цвета линий
   colorChange() {
     this.setState({ color: (this.state.color === "red") ? "black" : "red" });
     this.textChange()
@@ -107,11 +107,13 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.setState({ drawingCoordinate: "" });
   }
 
-  //Кнопка 
+  //Кнопка соединения начальной точки и конечной
 
   completeFigureText() {
     this.setState(() => { return { buttonZ: true } });
   }
+
+  //Соединения начальной точки и конечной с проверкой наличия двух отрисованных двух линий
 
   completeFigureButton() {
 
@@ -123,19 +125,14 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     }
   }
 
-  // ________________________________________Cordinate_______________________________________  //
+  //Помещение кординат в массив
 
   addCoordinateToArray(event: React.MouseEvent) {
-
     this.state.addCoordinate.push({ x: event.clientX, y: event.clientY });
-
     this.setState({ addCoordinateArray: this.state.addCoordinate })
   }
 
-
-  // ________________________________________Cordinate END_______________________________________  //
-
-  // ________________________________________drawingSvg_______________________________________  //
+  //Преобразование массива в строку с необходимыми координатами для строк
 
   drawingSvg(event: React.MouseEvent) {
 
@@ -147,7 +144,6 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
     this.state.addCoordinateArray.forEach((element: { x: number, y: number }, index: number) => {
       drawingCoordinateFinal += ((index === 0) ? pointM : pointL) + this.state.addCoordinateArray[index].x + " " + this.state.addCoordinateArray[index].y
-
     })
 
     this.setState({ drawingCoordinate: drawingCoordinateFinal })
@@ -166,6 +162,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       <div>
 
         <svg onClick={this.drawingSvg} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
+          Circles (<circle cx="25" cy="75" r="20"/>)
           <path id="line" d={drawingLine} stroke={colorFinal} />
         </svg>
 
