@@ -39,3 +39,13 @@
     outline: none;
     box-shadow: 0 0 0 4px #cbd6ee;
   }
+
+  .buttonPolygon{
+    background: rgb(43, 9, 236);
+  }
+
+  .buttonPolygon:active {
+    background: rgb(70, 46, 202);
+    outline: none;
+    box-shadow: 0 0 0 4px #cbd6ee;
+  }
