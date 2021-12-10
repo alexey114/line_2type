@@ -18,11 +18,14 @@ export interface IFieldState {
   buttonZ: boolean,
   drawingCoordinate: string,
   pointCircle: {}[],
-  pointCircleAdd: {}[],
+  pointCircleAdd: { x: number, y: number }[],
+  pointCircleAddDrawing: { x: number, y: number }[],
   pointRect: {}[],
-  pointRectAdd: {}[],
+  pointRectAdd: { x: number, y: number }[],
+  pointRectAddDrawing: { x: number, y: number }[],
   pointLine: {}[],
-  pointLineAdd: {}[],
+  pointLineAdd: { x: number, y: number }[],
+  pointLineAddDrawing: { x: number, y: number }[],
   circleRect: boolean,
   pointPolygon: string,
   pointPolygonAdd: string,
@@ -42,7 +45,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       localStorageCoordinate: "",
       color: "black",
       localStorageColor: "",
-      colorPolygonFill: "white",
+      colorPolygonFill: "none",
       buttonRed: false,
       buttonSave: false,
       buttonLoad: false,
@@ -50,10 +53,13 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       drawingCoordinate: "",
       pointCircle: [],
       pointCircleAdd: [],
+      pointCircleAddDrawing: [],
       pointRect: [],
       pointRectAdd: [],
+      pointRectAddDrawing: [],
       pointLine: [],
       pointLineAdd: [],
+      pointLineAddDrawing: [],
       circleRect: true,
       pointPolygon: "",
       pointPolygonAdd: "",
@@ -96,9 +102,9 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       localStorage.setItem("drawingCoordinateLocalStorage", this.state.drawingCoordinate);
       localStorage.setItem("pointPolygonLocalStorage", this.state.pointPolygon);
 
-      localStorage.setItem("pointLineLocalStorage", JSON.stringify(this.state.pointLine));
-      localStorage.setItem("pointRectLocalStorage", JSON.stringify(this.state.pointRect));
-      localStorage.setItem("pointCircleLocalStorage", JSON.stringify(this.state.pointCircle));
+      localStorage.setItem("pointLineLocalStorage", JSON.stringify(this.state.pointLineAdd));
+      localStorage.setItem("pointRectLocalStorage", JSON.stringify(this.state.pointRectAdd));
+      localStorage.setItem("pointCircleLocalStorage", JSON.stringify(this.state.pointCircleAdd));
 
       localStorage.setItem("colorLocalStorage", this.state.color);
 
@@ -108,19 +114,15 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     }
   }
 
-
-
   //Загрузка из Local Storage
 
   coordinateLoad = () => {
     let localStorageCoordinate = localStorage.getItem("drawingCoordinateLocalStorage");
     let loadPointPolygon = localStorage.getItem("pointPolygonLocalStorage")!;
 
-    // let loadPointLine = JSON.parse(localStorage.getItem("pointLineLocalStorage")!);
-    // let loadPointCircle = JSON.parse(localStorage.getItem("pointCircleLocalStorage")!);
-    // let loadPointRect = JSON.parse(localStorage.getItem("pointRectLocalStorage")!);
-
-    // console.log(loadPointCircle)
+    let loadPointLine = JSON.parse(localStorage.getItem("pointLineLocalStorage")!);
+    let loadPointCircle = JSON.parse(localStorage.getItem("pointCircleLocalStorage")!);
+    let loadPointRect = JSON.parse(localStorage.getItem("pointRectLocalStorage")!);
 
     let localStorageColor = localStorage.getItem("colorLocalStorage")!;
 
@@ -130,9 +132,12 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       this.setState({ drawingCoordinate: localStorageCoordinate });
       this.setState({ pointPolygon: loadPointPolygon });
 
-      // this.setState({ pointLine: loadPointLine });
-      // this.setState({ pointCircle: loadPointCircle });
-      // this.setState({ pointRect: loadPointRect });
+      this.setState({ pointLineAdd: loadPointLine });
+      this.line()
+      this.setState({ pointCircleAdd: loadPointCircle });
+      this.circles()
+      this.setState({ pointRectAdd: loadPointRect });
+      this.rect()
 
       if (localStorageColor !== this.state.color) {
         this.setState({ color: localStorageColor });
@@ -185,7 +190,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   //Изменение цвета заливки Polygon
 
   buttonPolygonChangeFillColor() {
-    this.setState({ colorPolygonFill: (this.state.colorPolygonFill === "white") ? "blue" : "white" });
+    this.setState({ colorPolygonFill: (this.state.colorPolygonFill === "none") ? "blue" : "none" });
   }
 
   //Вкл\выкл рисования обычных линий и сброс рисования Polygon
@@ -256,6 +261,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       return drawingCoordinateAdd += ((index === 0) ? pointM : pointL) + this.state.addCoordinateArray[index].x + " " + this.state.addCoordinateArray[index].y
     })
 
+    console.log(drawingCoordinateAdd)
+
     this.setState({ drawingCoordinate: drawingCoordinateAdd })
   }
 
@@ -263,13 +270,22 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   line() {
     let pointLineAdd = [];
-    for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
-      if (i > 0) {
-        pointLineAdd.push(<line key={i} x1={this.state.addCoordinateArray[i - 1].x} x2={this.state.addCoordinateArray[i].x} y1={this.state.addCoordinateArray[i - 1].y} y2={this.state.addCoordinateArray[i].y} stroke={this.state.color} fill="transparent" strokeWidth="1" />)
-      }
+    let pointLineAddDrawing = [];
 
-      this.setState({ pointLine: pointLineAdd })
+    for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
+      pointLineAdd.push({ x: this.state.addCoordinateArray[i].x, y: this.state.addCoordinateArray[i].y })
     }
+
+    if (pointLineAdd.length > 1) {
+      for (let i = 1; i < pointLineAdd.length; i++) {
+        pointLineAddDrawing.push(<line key={i} x1={pointLineAdd[i - 1].x} x2={pointLineAdd[i].x} y1={pointLineAdd[i - 1].y} y2={pointLineAdd[i].y} stroke={this.state.color} fill="transparent" strokeWidth="1" />)
+      }
+    }
+
+    console.log(pointLineAdd)
+
+    this.setState({ pointLineAdd: pointLineAdd })
+    this.setState({ pointLine: pointLineAddDrawing })
   }
 
   //Polygon
@@ -291,11 +307,18 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   circles() {
 
     let pointCircleAdd = [];
+    let pointCircleAddDrawing = [];
+
     for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
-      pointCircleAdd.push(<circle key={i} cx={this.state.addCoordinateArray[i].x} cy={this.state.addCoordinateArray[i].y} r="5" fill={this.state.color} stroke={this.state.color}></circle>)
+      pointCircleAdd.push({ x: this.state.addCoordinateArray[i].x, y: this.state.addCoordinateArray[i].y })
     }
 
-    this.setState({ pointCircle: pointCircleAdd })
+    for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
+      pointCircleAddDrawing.push(<circle key={i} cx={pointCircleAdd[i].x} cy={pointCircleAdd[i].y} r="5" fill={this.state.color} stroke={this.state.color}></circle>)
+    }
+
+    this.setState({ pointCircleAdd: pointCircleAdd })
+    this.setState({ pointCircle: pointCircleAddDrawing })
   }
 
   //Квадраты в узлах
@@ -303,15 +326,24 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   rect() {
 
     let pointRectAdd = [];
+    let pointRectAddDrawing = [];
+
     for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
-      pointRectAdd.push(<rect key={i} x={this.state.addCoordinateArray[i].x - 2} y={this.state.addCoordinateArray[i].y - 2} width="5" height="5" fill={this.state.color} stroke={this.state.color} />)
+      pointRectAdd.push({ x: this.state.addCoordinateArray[i].x, y: this.state.addCoordinateArray[i].y })
     }
 
-    this.setState({ pointRect: pointRectAdd })
+    for (let i = 0; i < pointRectAdd.length; i++) {
+      pointRectAddDrawing.push(<rect key={i} x={pointRectAdd[i].x - 2} y={pointRectAdd[i].y - 2} width="5" height="5" fill={this.state.color} stroke={this.state.color} />)
+    }
+
+    this.setState({ pointRectAdd: pointRectAdd })
+    this.setState({ pointRect: pointRectAddDrawing })
   }
 
 
   render() {
+
+
 
     const drawingLine = this.state.drawingCoordinate
     const colorFinal = this.state.color
