@@ -31,41 +31,43 @@ export interface IFieldState {
   pointPolygonAdd: string,
   buttonPolygon: boolean,
   buttonLine: boolean,
-  buttonPolygonColorText: boolean,
+  buttonPolygonColorText: boolean
 }
 
 export class Field extends React.Component<IFieldProps, IFieldState> {
+
+  
 
   constructor(props: IFieldProps) {
     super(props);
 
     this.state = {
-      addCoordinateArray: [],
-      addCoordinate: [],
-      localStorageCoordinate: "",
-      color: "black",
-      localStorageColor: "",
-      colorPolygonFill: "none",
-      buttonRed: false,
-      buttonSave: false,
-      buttonLoad: false,
-      buttonZ: false,
-      drawingCoordinate: "",
-      pointCircle: [],
-      pointCircleAdd: [],
-      pointCircleAddDrawing: [],
-      pointRect: [],
-      pointRectAdd: [],
-      pointRectAddDrawing: [],
-      pointLine: [],
-      pointLineAdd: [],
-      pointLineAddDrawing: [],
-      circleRect: true,
-      pointPolygon: "",
-      pointPolygonAdd: "",
-      buttonPolygon: false,
-      buttonLine: false,
-      buttonPolygonColorText: false,
+      addCoordinateArray: [],     //массив, в который передаю обновленное значение addCoordinate
+      addCoordinate: [],          //массив, в который пушим кординаты x и y при каждом нажатии
+      localStorageCoordinate: "", //сохранение в localStorage кординаты линии path
+      color: "black",             //цвет линий
+      localStorageColor: "",      //сохранение цвета в localStorage
+      colorPolygonFill: "none",   //заливка полигона
+      buttonRed: false,           //кнопка переключения на красный цвет
+      buttonSave: false,          //кнопка сохранения в localStorage
+      buttonLoad: false,          //кнопка загрузки из localStorage
+      buttonZ: false,             //кнопка соединения линий path
+      drawingCoordinate: "",      //строка с координатами path
+      pointCircle: [],            //массив для отрисовки кружков в узлах через setState
+      pointCircleAdd: [],         //массив с координатами x и y для отрисовки кружков в узлах
+      pointCircleAddDrawing: [],  //массив с кружками в HTML формате
+      pointRect: [],              //массив для отрисовки квадратов в узлах через setState
+      pointRectAdd: [],           //массив с координатами x и y для отрисовки квадратов в узлах
+      pointRectAddDrawing: [],    //массив с квардратами в HTML формате
+      pointLine: [],              //массив для отрисовки обычных линий через setState
+      pointLineAdd: [],           //массив с координатами x и y для отрисовки обычных линий
+      pointLineAddDrawing: [],    //массив с линиями в HTML формате
+      circleRect: true,           //флаг переключения с кругов на квадраты в узлах
+      pointPolygon: "",           //строка с координатами Polygon
+      pointPolygonAdd: "",        //строка с координатами Polygon, куда через map передаю точки addCoordinateArray
+      buttonPolygon: false,       //активация рисования Polygon
+      buttonLine: false,          //активация рисования обычной линии
+      buttonPolygonColorText: false,  //изменение цвета заливки Polygon
     };
 
     this.textChangeRed = this.textChangeRed.bind(this);
@@ -82,6 +84,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.buttonPolygonChange = this.buttonPolygonChange.bind(this);
     this.buttonLineChange = this.buttonLineChange.bind(this);
     this.buttonPolygonChangeFill = this.buttonPolygonChangeFill.bind(this);
+
+    // this.createArrayCoordinae = this.createArrayCoordinae.bind(this);
 
   }
 
@@ -133,6 +137,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       this.setState({ pointPolygon: loadPointPolygon });
 
       this.setState({ pointLineAdd: loadPointLine });
+      console.log(loadPointLine)
       this.line()
       this.setState({ pointCircleAdd: loadPointCircle });
       this.circles()
@@ -218,7 +223,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     }
   }
 
-  //Помещение кординат в массив
+  //Помещение координат в массив
 
   addCoordinateToArray(event: React.MouseEvent) {
     this.state.addCoordinate.push({ x: event.clientX, y: event.clientY });
@@ -261,8 +266,6 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       return drawingCoordinateAdd += ((index === 0) ? pointM : pointL) + this.state.addCoordinateArray[index].x + " " + this.state.addCoordinateArray[index].y
     })
 
-    console.log(drawingCoordinateAdd)
-
     this.setState({ drawingCoordinate: drawingCoordinateAdd })
   }
 
@@ -281,8 +284,6 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
         pointLineAddDrawing.push(<line key={i} x1={pointLineAdd[i - 1].x} x2={pointLineAdd[i].x} y1={pointLineAdd[i - 1].y} y2={pointLineAdd[i].y} stroke={this.state.color} fill="transparent" strokeWidth="1" />)
       }
     }
-
-    console.log(pointLineAdd)
 
     this.setState({ pointLineAdd: pointLineAdd })
     this.setState({ pointLine: pointLineAddDrawing })
@@ -313,7 +314,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       pointCircleAdd.push({ x: this.state.addCoordinateArray[i].x, y: this.state.addCoordinateArray[i].y })
     }
 
-    for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
+    for (let i = 0; i < this.state.pointCircleAdd.length; i++) {
       pointCircleAddDrawing.push(<circle key={i} cx={pointCircleAdd[i].x} cy={pointCircleAdd[i].y} r="5" fill={this.state.color} stroke={this.state.color}></circle>)
     }
 
@@ -336,12 +337,20 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       pointRectAddDrawing.push(<rect key={i} x={pointRectAdd[i].x - 2} y={pointRectAdd[i].y - 2} width="5" height="5" fill={this.state.color} stroke={this.state.color} />)
     }
 
-    this.setState({ pointRectAdd: pointRectAdd })
+    this.setState({ pointCircleAdd: pointRectAdd })
     this.setState({ pointRect: pointRectAddDrawing })
   }
 
 
   render() {
+
+    
+
+    // function createArrayCoordinae(event:React.MouseEvent){
+    //   const arrayCoordinate = [];
+    //   arrayCoordinate.push({ x: event.clientX, y: event.clientY });
+    //   console.log(arrayCoordinate)
+    //   return arrayCoordinate    }
 
 
 
@@ -381,6 +390,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
         <button className="buttonPolygon" onClick={() => this.buttonPolygonChangeFill()}> {buttonPolygonTextFinal ? "Заливка полигона вкл" : "Заливка полигона выкл"} </button>
 
         <button className="save" onClick={() => this.buttonLineChange()}> {buttonLineFinal ? "Линия вкл" : "Линия выкл"} </button>
+        {/* <button className="save" onClick={() => this.createArrayCoordinae()}> Test </button> */}
 
       </div>
     );
