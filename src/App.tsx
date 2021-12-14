@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.css';
-import Field from './Field';
+import Coordinate from './Coordinate';
 
 
 function App() {
   return (
     <div className="container">
-        <Field/>
+        <Coordinate/>
     </div>
   );
 }

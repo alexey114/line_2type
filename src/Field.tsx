@@ -3,9 +3,10 @@ import './Field.css';
 import './Button.css';
 
 interface IFieldProps {
+
 }
 
-export interface IFieldState {
+interface IFieldState {
   addCoordinateArray: { x: number, y: number }[],
   addCoordinate: { x: number, y: number }[],
   localStorageCoordinate: string,
@@ -31,17 +32,24 @@ export interface IFieldState {
   pointPolygonAdd: string,
   buttonPolygon: boolean,
   buttonLine: boolean,
-  buttonPolygonColorText: boolean
-}
-
-export class Field extends React.Component<IFieldProps, IFieldState> {
+  buttonPolygonColorText: boolean,
 
   
+}
+
+
+// addCoordinateToArray(event: React.MouseEvent) {
+//   this.state.addCoordinate.push({ x: event.clientX, y: event.clientY });
+//   this.setState({ addCoordinateArray: this.state.addCoordinate })
+// }
+
+export class Field extends React.Component<IFieldProps, IFieldState> {
 
   constructor(props: IFieldProps) {
     super(props);
 
     this.state = {
+
       addCoordinateArray: [],     //массив, в который передаю обновленное значение addCoordinate
       addCoordinate: [],          //массив, в который пушим кординаты x и y при каждом нажатии
       localStorageCoordinate: "", //сохранение в localStorage кординаты линии path
@@ -68,6 +76,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       buttonPolygon: false,       //активация рисования Polygon
       buttonLine: false,          //активация рисования обычной линии
       buttonPolygonColorText: false,  //изменение цвета заливки Polygon
+
+
     };
 
     this.textChangeRed = this.textChangeRed.bind(this);
@@ -140,6 +150,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       console.log(loadPointLine)
       this.line()
       this.setState({ pointCircleAdd: loadPointCircle });
+      console.log(loadPointCircle)
       this.circles()
       this.setState({ pointRectAdd: loadPointRect });
       this.rect()
@@ -285,7 +296,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       }
     }
 
-    this.setState({ pointLineAdd: pointLineAdd })
+    this.setState({ pointLine: pointLineAdd })
     this.setState({ pointLine: pointLineAddDrawing })
   }
 
@@ -307,7 +318,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   circles() {
 
-    let pointCircleAdd = [];
+    let pointCircleAdd = this.state.pointCircleAdd;
     let pointCircleAddDrawing = [];
 
     for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
@@ -318,7 +329,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       pointCircleAddDrawing.push(<circle key={i} cx={pointCircleAdd[i].x} cy={pointCircleAdd[i].y} r="5" fill={this.state.color} stroke={this.state.color}></circle>)
     }
 
-    this.setState({ pointCircleAdd: pointCircleAdd })
+    this.setState({ pointCircle: pointCircleAdd })
     this.setState({ pointCircle: pointCircleAddDrawing })
   }
 
@@ -326,7 +337,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   rect() {
 
-    let pointRectAdd = [];
+    let pointRectAdd = this.state.pointRectAdd;
     let pointRectAddDrawing = [];
 
     for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
@@ -337,22 +348,20 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
       pointRectAddDrawing.push(<rect key={i} x={pointRectAdd[i].x - 2} y={pointRectAdd[i].y - 2} width="5" height="5" fill={this.state.color} stroke={this.state.color} />)
     }
 
-    this.setState({ pointCircleAdd: pointRectAdd })
+    this.setState({ pointRect: pointRectAdd })
     this.setState({ pointRect: pointRectAddDrawing })
   }
 
 
   render() {
 
-    
+    // const setCoordinate: { x: number, y: number }[] = []
 
-    // function createArrayCoordinae(event:React.MouseEvent){
-    //   const arrayCoordinate = [];
-    //   arrayCoordinate.push({ x: event.clientX, y: event.clientY });
-    //   console.log(arrayCoordinate)
-    //   return arrayCoordinate    }
-
-
+    // function setCoordinateToArray(event: { clientX: number; clientY: number; }) {
+    //     setCoordinate.push({ x: event.clientX, y: event.clientY })
+    //     console.log(setCoordinate)
+    //     return setCoordinate;
+    // }
 
     const drawingLine = this.state.drawingCoordinate
     const colorFinal = this.state.color
@@ -370,7 +379,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     return (
 
       <div>
-
+        
         <svg onClick={this.drawingSvg} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
           {pointCircleFinal}
           {pointRectFinal}
