@@ -6,7 +6,7 @@ import Coordinate from './Coordinate';
 function App() {
   return (
     <div className="container">
-        <Coordinate/>
+        <Coordinate />
     </div>
   );
 }
