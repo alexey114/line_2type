@@ -6,9 +6,9 @@ import Circle from "./Figures/Circle";
 function Coordinate() {
     let setCoordinate: { x: number, y: number }[] = []
 
-    let drawingRectCoordinate: {}[] = []
-    let drawingCircleCoordinate: {}[] = []
-    let drawingLineCoordinate: {}[] = []
+    let drawingRectCoordinate: JSX.Element[] = []
+    let drawingCircleCoordinate: JSX.Element[] = []
+    let drawingLineCoordinate: JSX.Element[] = []
 
     let drawingPolygonCoordinate = "";
     let drawingPathLineAdd = "";
@@ -28,18 +28,18 @@ function Coordinate() {
     }
 
     function drawingCircle() {
-        drawingCircleCoordinate = setCoordinate.map((item, index) => (<circle key={index} cx={setCoordinate[index].x} cy={setCoordinate[index].y} r="5" fill='black' stroke='black'></circle>))
+        drawingCircleCoordinate = setCoordinate.map((element, index) => (<circle key={index} cx={setCoordinate[index].x} cy={setCoordinate[index].y} r="5" fill='black' stroke='black'></circle>))
         console.log(drawingCircleCoordinate)
     }
 
     function drawingRect() {
-        drawingRectCoordinate = setCoordinate.map((item, index) => (<rect key={index} x={setCoordinate[index].x - 2} y={setCoordinate[index].y - 2} width="5" height="5" fill='black' stroke='black' />))
+        drawingRectCoordinate = setCoordinate.map((element, index) => (<rect key={index} x={setCoordinate[index].x - 2} y={setCoordinate[index].y - 2} width="5" height="5" fill='black' stroke='black' />))
     }
 
     function drawingLine() {
         if (setCoordinate.length > 1) {
             for (let i = 1; i < setCoordinate.length; i++) {
-                drawingLineCoordinate = setCoordinate.map((item, index) => (<line key={i} x1={setCoordinate[i - 1].x} x2={setCoordinate[i].x} y1={setCoordinate[i - 1].y} y2={setCoordinate[i].y} stroke="black" fill="transparent" strokeWidth="1" />))
+                drawingLineCoordinate = setCoordinate.map((element, index) => (<line key={i} x1={setCoordinate[i - 1].x} x2={setCoordinate[i].x} y1={setCoordinate[i - 1].y} y2={setCoordinate[i].y} stroke="black" fill="transparent" strokeWidth="1" />))
             }
         }
     }

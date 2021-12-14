@@ -3,87 +3,58 @@ import './Field.css';
 import './Button.css';
 
 interface IFieldProps {
-
 }
 
 interface IFieldState {
-  addCoordinateArray: { x: number, y: number }[],
-  addCoordinate: { x: number, y: number }[],
-  localStorageCoordinate: string,
+  drawingLinePath: string,
+  drawingPolygon: string,
+  drawingCircle: JSX.Element[],
+  drawingRect: JSX.Element[],
+  drawingLine: JSX.Element[],
+  loadPointLinePath: string,
   color: string,
-  localStorageColor: string,
+  loadColor: string,
   colorPolygonFill: string,
   buttonRed: boolean,
   buttonSave: boolean,
   buttonLoad: boolean,
   buttonZ: boolean,
-  drawingCoordinate: string,
-  pointCircle: {}[],
-  pointCircleAdd: { x: number, y: number }[],
-  pointCircleAddDrawing: { x: number, y: number }[],
-  pointRect: {}[],
-  pointRectAdd: { x: number, y: number }[],
-  pointRectAddDrawing: { x: number, y: number }[],
-  pointLine: {}[],
-  pointLineAdd: { x: number, y: number }[],
-  pointLineAddDrawing: { x: number, y: number }[],
-  circleRect: boolean,
-  pointPolygon: string,
-  pointPolygonAdd: string,
+  selectorCircleRect: boolean,
   buttonPolygon: boolean,
   buttonLine: boolean,
   buttonPolygonColorText: boolean,
-
-  
 }
 
-
-// addCoordinateToArray(event: React.MouseEvent) {
-//   this.state.addCoordinate.push({ x: event.clientX, y: event.clientY });
-//   this.setState({ addCoordinateArray: this.state.addCoordinate })
-// }
-
-export class Field extends React.Component<IFieldProps, IFieldState> {
+class Field extends React.Component<IFieldProps, IFieldState> {
 
   constructor(props: IFieldProps) {
     super(props);
 
     this.state = {
+      drawingCircle: [],  //массив с кружками в HTML формате
+      drawingRect: [],    //массив с квардратами в HTML формате
+      drawingLine: [],    //массив с линиями в HTML формате
+      drawingLinePath: "",      //строка с координатами path для отрисовки
+      drawingPolygon: "",        //строка с координатами Polygon, куда через map передаю точки setCoordinateArray
 
-      addCoordinateArray: [],     //массив, в который передаю обновленное значение addCoordinate
-      addCoordinate: [],          //массив, в который пушим кординаты x и y при каждом нажатии
-      localStorageCoordinate: "", //сохранение в localStorage кординаты линии path
+      loadPointLinePath: "", //сохранение в localStorage кординаты линии path
       color: "black",             //цвет линий
-      localStorageColor: "",      //сохранение цвета в localStorage
+      loadColor: "",      //сохранение цвета в localStorage
       colorPolygonFill: "none",   //заливка полигона
       buttonRed: false,           //кнопка переключения на красный цвет
       buttonSave: false,          //кнопка сохранения в localStorage
       buttonLoad: false,          //кнопка загрузки из localStorage
       buttonZ: false,             //кнопка соединения линий path
-      drawingCoordinate: "",      //строка с координатами path
-      pointCircle: [],            //массив для отрисовки кружков в узлах через setState
-      pointCircleAdd: [],         //массив с координатами x и y для отрисовки кружков в узлах
-      pointCircleAddDrawing: [],  //массив с кружками в HTML формате
-      pointRect: [],              //массив для отрисовки квадратов в узлах через setState
-      pointRectAdd: [],           //массив с координатами x и y для отрисовки квадратов в узлах
-      pointRectAddDrawing: [],    //массив с квардратами в HTML формате
-      pointLine: [],              //массив для отрисовки обычных линий через setState
-      pointLineAdd: [],           //массив с координатами x и y для отрисовки обычных линий
-      pointLineAddDrawing: [],    //массив с линиями в HTML формате
-      circleRect: true,           //флаг переключения с кругов на квадраты в узлах
-      pointPolygon: "",           //строка с координатами Polygon
-      pointPolygonAdd: "",        //строка с координатами Polygon, куда через map передаю точки addCoordinateArray
+      selectorCircleRect: true,           //флаг переключения с кругов на квадраты в узлах
       buttonPolygon: false,       //активация рисования Polygon
       buttonLine: false,          //активация рисования обычной линии
       buttonPolygonColorText: false,  //изменение цвета заливки Polygon
-
 
     };
 
     this.textChangeRed = this.textChangeRed.bind(this);
     this.buttonSave = this.buttonSave.bind(this);
     this.colorChange = this.colorChange.bind(this);
-    this.addCoordinateToArray = this.addCoordinateToArray.bind(this);
     this.coordinateSave = this.coordinateSave.bind(this);
     this.coordinateLoad = this.coordinateLoad.bind(this);
     this.completeFigureButton = this.completeFigureButton.bind(this);
@@ -94,72 +65,62 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     this.buttonPolygonChange = this.buttonPolygonChange.bind(this);
     this.buttonLineChange = this.buttonLineChange.bind(this);
     this.buttonPolygonChangeFill = this.buttonPolygonChangeFill.bind(this);
-
-    // this.createArrayCoordinae = this.createArrayCoordinae.bind(this);
-
+    this.buttonRemovePolygon = this.buttonRemovePolygon.bind(this);
+    this.buttonRemoveLine = this.buttonRemoveLine.bind(this);
   }
 
-  //Изменение текста кнопки
-  textChangeRed() {
-    this.setState({ buttonRed: (this.state.buttonRed === false) ? true : false });
-  }
-  //Изменение цвета линий
-  colorChange() {
-    this.setState({ color: (this.state.color === "red") ? "black" : "red" });
-    this.textChangeRed()
-  }
+  
 
   //Сохранение в Local Storage
 
   coordinateSave() {
-    if (this.state.addCoordinate.length > 0) {
-      localStorage.setItem("drawingCoordinateLocalStorage", this.state.drawingCoordinate);
-      localStorage.setItem("pointPolygonLocalStorage", this.state.pointPolygon);
+    if (setCoordinateArray.length > 0) {
+      localStorage.setItem("drawingLinePathLocalStorage", this.state.drawingLinePath);
+      localStorage.setItem("pointPolygonLocalStorage", this.state.drawingPolygon);
 
-      localStorage.setItem("pointLineLocalStorage", JSON.stringify(this.state.pointLineAdd));
-      localStorage.setItem("pointRectLocalStorage", JSON.stringify(this.state.pointRectAdd));
-      localStorage.setItem("pointCircleLocalStorage", JSON.stringify(this.state.pointCircleAdd));
+      localStorage.setItem("pointLineLocalStorage", JSON.stringify(this.state.drawingLine));
+      localStorage.setItem("pointRectLocalStorage", JSON.stringify(this.state.drawingRect));
+      localStorage.setItem("pointCircleLocalStorage", JSON.stringify(this.state.drawingCircle));
 
       localStorage.setItem("colorLocalStorage", this.state.color);
 
       this.buttonSave()
     } else {
-      alert('нарисуйте минимум одну линию')
+      alert('нарисуйте минимум одну фигуру')
     }
   }
 
   //Загрузка из Local Storage
 
   coordinateLoad = () => {
-    let localStorageCoordinate = localStorage.getItem("drawingCoordinateLocalStorage");
+    let loadPointLinePath = localStorage.getItem("drawingLinePathLocalStorage");
     let loadPointPolygon = localStorage.getItem("pointPolygonLocalStorage")!;
 
     let loadPointLine = JSON.parse(localStorage.getItem("pointLineLocalStorage")!);
     let loadPointCircle = JSON.parse(localStorage.getItem("pointCircleLocalStorage")!);
     let loadPointRect = JSON.parse(localStorage.getItem("pointRectLocalStorage")!);
 
-    let localStorageColor = localStorage.getItem("colorLocalStorage")!;
+    let loadColor = localStorage.getItem("colorLocalStorage")!;
 
-    if (localStorageCoordinate === null) {
+    if (loadPointLinePath === null) {
       alert("LocalStorage пуст")
     } else {
-      this.setState({ drawingCoordinate: localStorageCoordinate });
-      this.setState({ pointPolygon: loadPointPolygon });
+      this.setState({ drawingLinePath: loadPointLinePath });
+      this.setState({ drawingPolygon: loadPointPolygon });
 
-      this.setState({ pointLineAdd: loadPointLine });
+      this.setState({ drawingLine: loadPointLine });
       console.log(loadPointLine)
       this.line()
-      this.setState({ pointCircleAdd: loadPointCircle });
-      console.log(loadPointCircle)
+      this.setState({ drawingCircle: loadPointCircle });
+      console.log("drawingCircle", loadPointCircle)
       this.circles()
-      this.setState({ pointRectAdd: loadPointRect });
+      this.setState({ drawingRect: loadPointRect });
       this.rect()
 
-      if (localStorageColor !== this.state.color) {
-        this.setState({ color: localStorageColor });
+      if (loadColor !== this.state.color) {
+        this.setState({ color: loadColor });
         this.colorChange();
       }
-
     }
   }
 
@@ -180,20 +141,24 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   //Очистка SVG поля для рисования
 
   buttonRemove() {
-    this.setState({ drawingCoordinate: "" });
+    window.location.reload()
+  }
 
-    this.setState({ pointPolygon: "" });
-    this.setState({ pointLine: [] });
-
-    this.setState({ pointRect: [] });
-    this.setState({ pointCircle: [] });
+  //Изменение текста кнопки
+  textChangeRed() {
+    this.setState({ buttonRed: (this.state.buttonRed === false) ? true : false });
+  }
+  //Изменение цвета линий
+  colorChange() {
+    this.setState({ color: (this.state.color === "red") ? "black" : "red" });
+    this.textChangeRed()
   }
 
   //Переключение на рисование Polygon со сбросом текста кнопки линии
 
   buttonPolygonChange() {
     this.setState({ buttonPolygon: (this.state.buttonPolygon === false) ? true : false });
-    this.setState({ buttonLine: false });
+    this.buttonRemoveLine()
   }
 
   //Вкл\выкл заливки Polygon (текст и цвет)
@@ -213,7 +178,15 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   buttonLineChange() {
     this.setState({ buttonLine: (this.state.buttonLine === false) ? true : false });
-    this.setState({ buttonPolygon: false });
+    this.buttonRemovePolygon()
+  }
+
+  buttonRemovePolygon() {
+    this.setState({ buttonPolygon: false })
+  }
+
+  buttonRemoveLine() {
+    this.setState({ buttonLine: false })
   }
 
   //Кнопка соединения начальной точки и конечной
@@ -226,8 +199,8 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   completeFigureButton() {
 
-    if (this.state.drawingCoordinate.length > 2) {
-      this.setState({ drawingCoordinate: this.state.drawingCoordinate.concat("Z") });
+    if (this.state.drawingLinePath.length > 2) {
+      this.setState({ drawingLinePath: this.state.drawingLinePath.concat("Z") });
       this.completeFigureText();
     } else {
       alert("нарисуйте минимум 2 линии")
@@ -236,16 +209,13 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
   //Помещение координат в массив
 
-  addCoordinateToArray(event: React.MouseEvent) {
-    this.state.addCoordinate.push({ x: event.clientX, y: event.clientY });
-    this.setState({ addCoordinateArray: this.state.addCoordinate })
-  }
+  
 
   //Блок с переключением форм для рисунка и формой узлов
 
   drawingSvg(event: React.MouseEvent) {
 
-    this.addCoordinateToArray(event);
+    addCoordinateToArray(event);
 
     //формы
 
@@ -259,7 +229,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 
     //узлы
 
-    if (this.state.circleRect === true) {
+    if (this.state.selectorCircleRect === true) {
       this.circles()
     } else {
       this.rect()
@@ -269,108 +239,83 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
   //Отрисовка линии path
 
   pathLine() {
-    let drawingCoordinateAdd = "";
+    let drawingLinePath = "";
     let pointM = "M";
     let pointL = "L";
 
-    this.state.addCoordinateArray.map((element: { x: number, y: number }, index: number) => {
-      return drawingCoordinateAdd += ((index === 0) ? pointM : pointL) + this.state.addCoordinateArray[index].x + " " + this.state.addCoordinateArray[index].y
+    setCoordinateArray.map((element: { x: number, y: number }, index: number) => {
+      return drawingLinePath += ((index === 0) ? pointM : pointL) + setCoordinateArray[index].x + " " + setCoordinateArray[index].y
     })
 
-    this.setState({ drawingCoordinate: drawingCoordinateAdd })
+    this.setState({ drawingLinePath: drawingLinePath })
   }
 
   //Line
 
   line() {
-    let pointLineAdd = [];
-    let pointLineAddDrawing = [];
+    const drawingLine: JSX.Element[] = []
 
-    for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
-      pointLineAdd.push({ x: this.state.addCoordinateArray[i].x, y: this.state.addCoordinateArray[i].y })
-    }
-
-    if (pointLineAdd.length > 1) {
-      for (let i = 1; i < pointLineAdd.length; i++) {
-        pointLineAddDrawing.push(<line key={i} x1={pointLineAdd[i - 1].x} x2={pointLineAdd[i].x} y1={pointLineAdd[i - 1].y} y2={pointLineAdd[i].y} stroke={this.state.color} fill="transparent" strokeWidth="1" />)
+    if (setCoordinateArray.length > 1) {
+      for (let i = 1; i < setCoordinateArray.length; i++) {
+        drawingLine.push(<line key={i} x1={setCoordinateArray[i - 1].x} x2={setCoordinateArray[i].x} y1={setCoordinateArray[i - 1].y} y2={setCoordinateArray[i].y} stroke={this.state.color} fill="transparent" strokeWidth="1" />)
       }
     }
 
-    this.setState({ pointLine: pointLineAdd })
-    this.setState({ pointLine: pointLineAddDrawing })
+    console.log('drawingLine', this.state.drawingLine)
+
+    this.setState({ drawingLine: drawingLine })
   }
 
   //Polygon
 
   polygon() {
-    let pointPolygonAdd = "";
+    let drawingPolygon = "";
 
-
-    this.state.addCoordinateArray.map((element: { x: number, y: number, }, index: number) => {
-      pointPolygonAdd += this.state.addCoordinateArray[index].x + " " + this.state.addCoordinateArray[index].y + " "
-      return pointPolygonAdd
+    setCoordinateArray.map((element: { x: number, y: number, }, index: number) => {
+      drawingPolygon += setCoordinateArray[index].x + " " + setCoordinateArray[index].y + " "
+      return drawingPolygon
     })
 
-    this.setState({ pointPolygon: pointPolygonAdd })
+    this.setState({ drawingPolygon: drawingPolygon })
   }
 
   //Кружки в узлых
 
   circles() {
 
-    let pointCircleAdd = this.state.pointCircleAdd;
-    let pointCircleAddDrawing = [];
+    let drawingCircle = [];
 
-    for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
-      pointCircleAdd.push({ x: this.state.addCoordinateArray[i].x, y: this.state.addCoordinateArray[i].y })
+    for (let i = 0; i < setCoordinateArray.length; i++) {
+      drawingCircle.push(<circle key={i} cx={setCoordinateArray[i].x} cy={setCoordinateArray[i].y} r="5" fill={this.state.color} stroke={this.state.color}></circle>)
     }
 
-    for (let i = 0; i < this.state.pointCircleAdd.length; i++) {
-      pointCircleAddDrawing.push(<circle key={i} cx={pointCircleAdd[i].x} cy={pointCircleAdd[i].y} r="5" fill={this.state.color} stroke={this.state.color}></circle>)
-    }
-
-    this.setState({ pointCircle: pointCircleAdd })
-    this.setState({ pointCircle: pointCircleAddDrawing })
+    this.setState({ drawingCircle: drawingCircle })
   }
 
   //Квадраты в узлах
 
   rect() {
 
-    let pointRectAdd = this.state.pointRectAdd;
-    let pointRectAddDrawing = [];
+    let drawingRect = [];
 
-    for (let i = 0; i < this.state.addCoordinateArray.length; i++) {
-      pointRectAdd.push({ x: this.state.addCoordinateArray[i].x, y: this.state.addCoordinateArray[i].y })
+    for (let i = 0; i < setCoordinateArray.length; i++) {
+      drawingRect.push(<rect key={i} x={setCoordinateArray[i].x - 2} y={setCoordinateArray[i].y - 2} width="5" height="5" fill={this.state.color} stroke={this.state.color} />)
     }
 
-    for (let i = 0; i < pointRectAdd.length; i++) {
-      pointRectAddDrawing.push(<rect key={i} x={pointRectAdd[i].x - 2} y={pointRectAdd[i].y - 2} width="5" height="5" fill={this.state.color} stroke={this.state.color} />)
-    }
-
-    this.setState({ pointRect: pointRectAdd })
-    this.setState({ pointRect: pointRectAddDrawing })
+    this.setState({ drawingRect: drawingRect })
   }
+
 
 
   render() {
 
-    // const setCoordinate: { x: number, y: number }[] = []
-
-    // function setCoordinateToArray(event: { clientX: number; clientY: number; }) {
-    //     setCoordinate.push({ x: event.clientX, y: event.clientY })
-    //     console.log(setCoordinate)
-    //     return setCoordinate;
-    // }
-
-    const drawingLine = this.state.drawingCoordinate
+    const drawingLine = this.state.drawingLinePath
     const colorFinal = this.state.color
     const buttonRedFinal = this.state.buttonRed
-    const pointCircleFinal = this.state.pointCircle;
-    const pointRectFinal = this.state.pointRect
-
-    const pointLineFinal = this.state.pointLine
-    const pointPolygonFinal = this.state.pointPolygon
+    const pointCircleFinal = this.state.drawingCircle;
+    const pointRectFinal = this.state.drawingRect
+    const pointLineFinal = this.state.drawingLine
+    const pointPolygonFinal = this.state.drawingPolygon
     const buttonPolygonFinal = this.state.buttonPolygon
     const buttonLineFinal = this.state.buttonLine
     const buttonPolygonTextFinal = this.state.buttonPolygonColorText
@@ -379,7 +324,7 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
     return (
 
       <div>
-        
+
         <svg onClick={this.drawingSvg} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
           {pointCircleFinal}
           {pointRectFinal}
@@ -399,7 +344,6 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
         <button className="buttonPolygon" onClick={() => this.buttonPolygonChangeFill()}> {buttonPolygonTextFinal ? "Заливка полигона вкл" : "Заливка полигона выкл"} </button>
 
         <button className="save" onClick={() => this.buttonLineChange()}> {buttonLineFinal ? "Линия вкл" : "Линия выкл"} </button>
-        {/* <button className="save" onClick={() => this.createArrayCoordinae()}> Test </button> */}
 
       </div>
     );
@@ -407,3 +351,10 @@ export class Field extends React.Component<IFieldProps, IFieldState> {
 }
 
 export default Field;
+
+  const setCoordinateArray: {x:number, y:number}[] = []
+
+  function addCoordinateToArray(event:React.MouseEvent) {
+    setCoordinateArray.push({ x: event.clientX, y: event.clientY });
+  }
+

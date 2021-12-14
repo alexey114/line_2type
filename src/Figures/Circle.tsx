@@ -1,11 +1,11 @@
 import React from "react";
 
 interface IPropsField {
-    data: {}[], //Тип переданных пропсов - объект массивов с кружками
+    data: JSX.Element[], //Тип переданных пропсов - объект массивов с кружками
 }
 
 interface IStateField {
-    drawingCircleCoordinate: {}[] //Тип изначального state - объект массивов с кружками
+    drawingCircleCoordinate: JSX.Element[] //Тип изначального state - объект массивов с кружками
 }
 
 class Circle extends React.Component<IPropsField, IStateField> {

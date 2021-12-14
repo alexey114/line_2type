@@ -11,7 +11,7 @@ interface IPropsField {
 interface IStateField {
     coordineteForDrawing: {}[]
 
-    drawingCircleCoordinate: {}[]
+    drawingCircleCoordinate: JSX.Element[]
 }
 
 
