@@ -25,6 +25,13 @@ interface IFieldState {
   buttonPolygonColorText: boolean,
 }
 
+//Помещение координат в массив
+
+const setCoordinateArray: { x: number, y: number }[] = []
+
+function addCoordinateToArray(event: React.MouseEvent) {
+  setCoordinateArray.push({ x: event.clientX, y: event.clientY });
+}
 class Field extends React.Component<IFieldProps, IFieldState> {
 
   constructor(props: IFieldProps) {
@@ -49,7 +56,6 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       buttonPolygon: false,       //активация рисования Polygon
       buttonLine: false,          //активация рисования обычной линии
       buttonPolygonColorText: false,  //изменение цвета заливки Polygon
-
     };
 
     this.textChangeRed = this.textChangeRed.bind(this);
@@ -69,7 +75,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     this.buttonRemoveLine = this.buttonRemoveLine.bind(this);
   }
 
-  
+
 
   //Сохранение в Local Storage
 
@@ -207,10 +213,6 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     }
   }
 
-  //Помещение координат в массив
-
-  
-
   //Блок с переключением форм для рисунка и формой узлов
 
   drawingSvg(event: React.MouseEvent) {
@@ -239,73 +241,71 @@ class Field extends React.Component<IFieldProps, IFieldState> {
   //Отрисовка линии path
 
   pathLine() {
-    let drawingLinePath = "";
+    let drawingLinePathPoint = "";
     let pointM = "M";
     let pointL = "L";
 
     setCoordinateArray.map((element: { x: number, y: number }, index: number) => {
-      return drawingLinePath += ((index === 0) ? pointM : pointL) + setCoordinateArray[index].x + " " + setCoordinateArray[index].y
+      return drawingLinePathPoint += ((index === 0) ? pointM : pointL) + setCoordinateArray[index].x + " " + setCoordinateArray[index].y
     })
 
-    this.setState({ drawingLinePath: drawingLinePath })
+    this.setState({ drawingLinePath: drawingLinePathPoint })
   }
 
   //Line
 
   line() {
-    const drawingLine: JSX.Element[] = []
+    const drawingLinePoint: JSX.Element[] = []
 
     if (setCoordinateArray.length > 1) {
       for (let i = 1; i < setCoordinateArray.length; i++) {
-        drawingLine.push(<line key={i} x1={setCoordinateArray[i - 1].x} x2={setCoordinateArray[i].x} y1={setCoordinateArray[i - 1].y} y2={setCoordinateArray[i].y} stroke={this.state.color} fill="transparent" strokeWidth="1" />)
+        drawingLinePoint.push(<line key={i} x1={setCoordinateArray[i - 1].x} x2={setCoordinateArray[i].x} y1={setCoordinateArray[i - 1].y} y2={setCoordinateArray[i].y} stroke={this.state.color} fill="transparent" strokeWidth="1" />)
       }
     }
 
     console.log('drawingLine', this.state.drawingLine)
 
-    this.setState({ drawingLine: drawingLine })
+    this.setState({ drawingLine: drawingLinePoint })
   }
 
   //Polygon
 
   polygon() {
-    let drawingPolygon = "";
+    let drawingPolygonPoint = "";
 
     setCoordinateArray.map((element: { x: number, y: number, }, index: number) => {
-      drawingPolygon += setCoordinateArray[index].x + " " + setCoordinateArray[index].y + " "
-      return drawingPolygon
+      drawingPolygonPoint += setCoordinateArray[index].x + " " + setCoordinateArray[index].y + " "
+      return drawingPolygonPoint
     })
 
-    this.setState({ drawingPolygon: drawingPolygon })
+    this.setState({ drawingPolygon: drawingPolygonPoint })
   }
 
   //Кружки в узлых
 
   circles() {
 
-    let drawingCircle = [];
+    let drawingCirclePoint = [];
 
     for (let i = 0; i < setCoordinateArray.length; i++) {
-      drawingCircle.push(<circle key={i} cx={setCoordinateArray[i].x} cy={setCoordinateArray[i].y} r="5" fill={this.state.color} stroke={this.state.color}></circle>)
+      drawingCirclePoint.push(<circle key={i} cx={setCoordinateArray[i].x} cy={setCoordinateArray[i].y} r="5" fill={this.state.color} stroke={this.state.color}></circle>)
     }
 
-    this.setState({ drawingCircle: drawingCircle })
+    this.setState({ drawingCircle: drawingCirclePoint })
   }
 
   //Квадраты в узлах
 
   rect() {
 
-    let drawingRect = [];
+    let drawingRectPoint = [];
 
     for (let i = 0; i < setCoordinateArray.length; i++) {
-      drawingRect.push(<rect key={i} x={setCoordinateArray[i].x - 2} y={setCoordinateArray[i].y - 2} width="5" height="5" fill={this.state.color} stroke={this.state.color} />)
+      drawingRectPoint.push(<rect key={i} x={setCoordinateArray[i].x - 2} y={setCoordinateArray[i].y - 2} width="5" height="5" fill={this.state.color} stroke={this.state.color} />)
     }
 
-    this.setState({ drawingRect: drawingRect })
+    this.setState({ drawingRect: drawingRectPoint })
   }
-
-
 
   render() {
 
@@ -351,10 +351,3 @@ class Field extends React.Component<IFieldProps, IFieldState> {
 }
 
 export default Field;
-
-  const setCoordinateArray: {x:number, y:number}[] = []
-
-  function addCoordinateToArray(event:React.MouseEvent) {
-    setCoordinateArray.push({ x: event.clientX, y: event.clientY });
-  }
-
