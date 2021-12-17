@@ -6,8 +6,8 @@ interface IFieldProps {
 }
 
 interface IFieldState {
-  drawingLinePath: string,
-  drawingPolygon: string,
+  drawingLinePath: (number|string)[],
+  drawingPolygon: number[],
   drawingCircle: JSX.Element[],
   drawingRect: JSX.Element[],
   drawingLine: JSX.Element[],
@@ -27,20 +27,56 @@ let setCoordinateArray: { x: number, y: number }[] = []
 let color = "black";
 let colorPolygonFill = "none";
 
-let drawingCircleCoordinate: JSX.Element[] = []
-let drawingRectCoordinate: JSX.Element[] = []
-
+let drawingLinePathPoint:(number|string)[] = []
+let drawingCircleCoordinate:JSX.Element[] = []
+let drawingRectCoordinate:JSX.Element[] = []
+let drawingLineCoordinate:JSX.Element[] = []
+let drawingPolygonPoint:number[] = []
 
 function addCoordinateToArray(event: React.MouseEvent) {
   setCoordinateArray.push({ x: event.clientX, y: event.clientY });
 }
 
+function applicationPathLine() {
+  let pointM = "M";
+  let pointL = "L";
+
+    for (let i = setCoordinateArray.length-1; i < setCoordinateArray.length; i++) {
+      drawingLinePathPoint.push(((drawingLinePathPoint.length === 0) ? pointM : pointL) + setCoordinateArray[i].x + " " + setCoordinateArray[i].y)
+    }
+
+  console.log("drawingLinePathPoint", drawingLinePathPoint)
+}
+
+function completeFigureButton() {
+  if (drawingLinePathPoint.length > 2) {
+    drawingLinePathPoint.push("Z")
+  } else {
+    alert("нарисуйте минимум 2 линии")
+  }
+}
+
 function applicationCircle() {
-  drawingCircleCoordinate = setCoordinateArray.map((element, index) => (<circle key={index} cx={setCoordinateArray[index].x} cy={setCoordinateArray[index].y} r="5" fill='black' stroke='black'></circle>))
+  drawingCircleCoordinate = setCoordinateArray.map((element, index) => (<circle key={index} cx={setCoordinateArray[index].x} cy={setCoordinateArray[index].y} r="5" fill={color} stroke={color}></circle>))
 }
 
 function applicationRect() {
-  drawingRectCoordinate = setCoordinateArray.map((element, index) => (<rect key={index} x={setCoordinateArray[index].x - 2} y={setCoordinateArray[index].y - 2} width="5" height="5" fill='black' stroke='black' />))
+  drawingRectCoordinate = setCoordinateArray.map((element, index) => (<rect key={index} x={setCoordinateArray[index].x - 2} y={setCoordinateArray[index].y - 2} width="5" height="5" fill={color} stroke={color} />))
+}
+
+function applicationLine() {
+  if (setCoordinateArray.length > 1) {
+    for (let i = setCoordinateArray.length-1; i < setCoordinateArray.length; i++) {
+      drawingLineCoordinate.push(<line key={i} x1={setCoordinateArray[i-1].x} x2={setCoordinateArray[i].x} y1={setCoordinateArray[i-1].y} y2={setCoordinateArray[i].y} stroke={color} fill={color} strokeWidth="1" />)
+    }
+  }
+  console.log("applicationLine", drawingLineCoordinate)
+}
+
+function applicationPolygon() {
+    for(let i=setCoordinateArray.length-1; i<setCoordinateArray.length; i++){
+      drawingPolygonPoint.push(setCoordinateArray[i].x, setCoordinateArray[i].y)
+    }
 }
 
 //Сохранение в Local Storage
@@ -77,6 +113,12 @@ function loadCoordinateAndColor() {
   }
 }
 
+function loadApplicationLine(){
+  for(let i=1; i<setCoordinateArray.length; i++) {
+    drawingLineCoordinate.push(<line key={i} x1={setCoordinateArray[i - 1].x} x2={setCoordinateArray[i].x} y1={setCoordinateArray[i - 1].y} y2={setCoordinateArray[i].y} stroke={color} fill={color} strokeWidth="1" />)
+  }
+}
+
 class Field extends React.Component<IFieldProps, IFieldState> {
 
   constructor(props: IFieldProps) {
@@ -86,13 +128,13 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       drawingCircle: [],  //массив с кружками в HTML формате
       drawingRect: [],    //массив с квардратами в HTML формате
       drawingLine: [],    //массив с линиями в HTML формате
-      drawingLinePath: "",      //строка с координатами path для отрисовки
-      drawingPolygon: "",        //строка с координатами Polygon, куда через map передаю точки setCoordinateArray
+      drawingLinePath: [],        //строка с координатами path для отрисовки
+      drawingPolygon: [],         //строка с координатами Polygon, куда через map передаю точки setCoordinateArray
       buttonRed: false,           //кнопка переключения на красный цвет
       buttonSave: false,          //кнопка сохранения в localStorage
       buttonLoad: false,          //кнопка загрузки из localStorage
       buttonZ: false,             //кнопка соединения линий path
-      selectorCircleRect: true,           //флаг переключения с кругов на квадраты в узлах
+      selectorCircleRect: true,   //флаг переключения с кругов на квадраты в узлах
       buttonPolygon: false,       //активация рисования Polygon
       buttonLine: false,          //активация рисования обычной линии
       buttonPolygonColorText: false,  //изменение цвета заливки Polygon
@@ -101,9 +143,9 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     this.textChangeRed = this.textChangeRed.bind(this);
     this.buttonSave = this.buttonSave.bind(this);
     this.colorChange = this.colorChange.bind(this);
-    this.completeFigureButton = this.completeFigureButton.bind(this);
+    this.completeFigureButtonState = this.completeFigureButtonState.bind(this);
     this.drawingSvg = this.drawingSvg.bind(this);
-    this.applicationPathLine = this.applicationPathLine.bind(this);
+    this.applicationPathLineState = this.applicationPathLineState.bind(this);
     this.applicationCirclesState = this.applicationCirclesState.bind(this);
     this.applicationRectState = this.applicationRectState.bind(this);
     this.applicationLineState = this.applicationLineState.bind(this);
@@ -127,7 +169,10 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     this.setState({ buttonLoad: true });
     loadCoordinateAndColor();
     // this.applicationPathLine()
-    this.applicationPathLine()
+    loadApplicationLine()
+
+    this.applicationLineState()
+    this.applicationPathLineState()
     this.applicationCirclesState()
 
     if (colorPolygonFill === "blue") {
@@ -199,18 +244,6 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     this.setState(() => { return { buttonZ: true } });
   }
 
-  //Соединения начальной точки и конечной с проверкой наличия двух отрисованных двух линий
-
-  completeFigureButton() {
-
-    if (this.state.drawingLinePath.length > 2) {
-      this.setState({ drawingLinePath: this.state.drawingLinePath.concat("Z") });
-      this.completeFigureText();
-    } else {
-      alert("нарисуйте минимум 2 линии")
-    }
-  }
-
   //Блок с переключением форм для рисунка и формой узлов
 
   drawingSvg(event: React.MouseEvent) {
@@ -220,11 +253,11 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     //формы
 
     if (this.state.buttonPolygon === true) {
-      this.applicationPolygon()
+      this.applicationPolygonState()
     } else if (this.state.buttonLine === true) {
       this.applicationLineState();
     } else {
-      this.applicationPathLine();
+      this.applicationPathLineState();
     }
 
     //узлы
@@ -238,77 +271,62 @@ class Field extends React.Component<IFieldProps, IFieldState> {
 
   //Отрисовка линии path
 
-  applicationPathLine() {
-    let drawingLinePathPoint = "";
-    let pointM = "M";
-    let pointL = "L";
+  applicationPathLineState() {
+    applicationPathLine()
+    let drawingLinePath = [...drawingLinePathPoint];
+    this.setState({ drawingLinePath })
+  }
 
-    setCoordinateArray.map((element: { x: number, y: number }, i: number) => {
-      let indexArray = setCoordinateArray[i];
-      return drawingLinePathPoint += ((i === 0) ? pointM : pointL) + indexArray.x + " " + indexArray.y
-    })
+  
+  //Соединения начальной точки и конечной с проверкой наличия двух отрисованных двух линий
 
-    console.log("drawingLinePathPoint", drawingLinePathPoint)
-    console.log("drawingLinePath", this.state.drawingLinePath)
-    console.log("setCoordinateArray", setCoordinateArray)
-
-    this.setState({ drawingLinePath: drawingLinePathPoint })
+  completeFigureButtonState() {
+      completeFigureButton()
+      let drawingLinePath = [...drawingLinePathPoint];
+      this.setState({ drawingLinePath });
+      this.completeFigureText();
   }
 
   //Line
 
   applicationLineState() {
-    const drawingLinePoint: JSX.Element[] = []
-
-    if (setCoordinateArray.length > 1) {
-      for (let i = 1; i < setCoordinateArray.length; i++) {
-        let indexArray = setCoordinateArray[i]
-        let indexArrayMinus = setCoordinateArray[i - 1]
-        drawingLinePoint.push(<line key={i} x1={indexArrayMinus.x} x2={indexArray.x} y1={indexArrayMinus.y} y2={indexArray.y} stroke={color} fill={color} strokeWidth="1" />)
-      }
-    }
-
-    console.log('drawingLine', this.state.drawingLine)
-
-    this.setState({ drawingLine: drawingLinePoint })
+    applicationLine()
+    let drawingLine = [...drawingLineCoordinate]
+    this.setState({ drawingLine })
   }
 
   //Polygon
 
-  applicationPolygon() {
-    let drawingPolygonPoint = "";
-
-    setCoordinateArray.map((element: { x: number, y: number, }, i: number) => {
-      let indexArray = setCoordinateArray[i]
-      drawingPolygonPoint += indexArray.x + " " + indexArray.y + " "
-      return drawingPolygonPoint
-    })
-
-    this.setState({ drawingPolygon: drawingPolygonPoint })
+  applicationPolygonState() {
+    applicationPolygon()
+    let drawingPolygon = [...drawingPolygonPoint]
+    this.setState({ drawingPolygon })
   }
 
   //Кружки в узлых
 
   applicationCirclesState() {
     applicationCircle()
-    this.setState({ drawingCircle: drawingCircleCoordinate })
+    let drawingCircle = [...drawingCircleCoordinate]
+    this.setState({ drawingCircle })
   }
 
   //Квадраты в узлах
 
   applicationRectState() {
     applicationRect()
-    this.setState({ drawingRect: drawingRectCoordinate })
+    let drawingRect = [...drawingRectCoordinate]
+    this.setState({ drawingRect })
   }
 
   render() {
 
-    const drawingLinePathFinal = this.state.drawingLinePath
+    const drawingLinePathFinal = this.state.drawingLinePath.join(" ")
     const buttonRedFinal = this.state.buttonRed
     const pointCircleFinal = this.state.drawingCircle;
     const pointRectFinal = this.state.drawingRect
     const pointLineFinal = this.state.drawingLine
-    const pointPolygonFinal = this.state.drawingPolygon
+    const pointPolygonFinal = this.state.drawingPolygon.join(" ")
     const buttonPolygonFinal = this.state.buttonPolygon
     const buttonLineFinal = this.state.buttonLine
     const buttonPolygonTextFinal = this.state.buttonPolygonColorText
@@ -325,7 +343,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
           <path id="line" d={drawingLinePathFinal} stroke={color} />
         </svg>
 
-        <button className="buttonZ" onClick={() => this.completeFigureButton()}>Соединить точки</button>
+        <button className="buttonZ" onClick={() => this.completeFigureButtonState()}>Соединить точки</button>
         <button className="colorRed" onClick={() => this.colorChange()}>{buttonRedFinal ? "Красный вкл" : "Красный выкл"} </button>
         <br />
         <button className="save" onClick={() => this.buttonSave()}> Сохранить </button>
