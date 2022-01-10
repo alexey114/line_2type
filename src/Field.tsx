@@ -116,8 +116,6 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     this.setCoordinateToArray = this.setCoordinateToArray.bind(this);
   }
 
-  //Сделать чек боксы для фигру + отрисовку вывести в отдельную функцию
-
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
   setCoordinateToArray(event: React.MouseEvent) {
@@ -173,11 +171,9 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       let pointL = "L";
       return ((index === 0) ? pointM : pointL) + (element.x + " " + element.y)
     }
-
     
     // Соединения начальной точки и конечной с проверкой наличия двух отрисованных двух линий
     // let compoundPointLinePath = false;
-    //ИСПОЛЬЗОВАТЬ КАЛЛ БЭК для отрисовки
 
     function completeLinePath() {
       if (arrayCoordinat.length > 2) {
