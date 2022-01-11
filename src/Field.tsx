@@ -5,10 +5,11 @@ import './Button.css';
 interface IFieldProps {
 }
 interface IFieldState {
-  coordinateToArray: ICoordinates[],
+  coordinateToArray: ICoordinate[],
+  selectFigure: string,
+  selectKnot: string,
 }
-interface ICoordinates {
-  type: any,
+interface ICoordinate {
   x: number,
   y: number,
   color: string,
@@ -87,6 +88,8 @@ function buttonRemove() {
   window.location.reload()
 }
 
+//Разграничение типов в зависимости от фигур и узлов
+/*
 let typeFigure = ""
 let typeKnot = ""
 
@@ -103,6 +106,7 @@ function setTypeFigure(){
 function setTypeKnot(){
   typeKnot = (checkKnotRect) ? "rct" : "crl"
 }
+*/
 
 class Field extends React.Component<IFieldProps, IFieldState> {
 
@@ -110,10 +114,14 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     super(props);
 
     this.state = {
-      coordinateToArray: [],        //основной массив с координатами
+      coordinateToArray: [], //основной массив с координатами
+      selectFigure: 'line',
+      selectKnot: 'circle',
     };
 
     this.setCoordinateToArray = this.setCoordinateToArray.bind(this);
+    this.handleChangeFigure = this.handleChangeFigure.bind(this);
+    this.handleChangeKnot = this.handleChangeKnot.bind(this);
   }
 
   //Сделать чек боксы для фигру + отрисовку вывести в отдельную функцию
@@ -123,14 +131,22 @@ class Field extends React.Component<IFieldProps, IFieldState> {
   setCoordinateToArray(event: React.MouseEvent) {
     let coordinateToArray = [...this.state.coordinateToArray]
     
-    setTypeFigure()
-    setTypeKnot()
-    coordinateToArray.push({type: typeFigure, x: event.clientX, y: event.clientY, color: colorСircuit, colorFill: colorFillPolygon });
-    coordinateToArray.push({type: typeKnot, x: event.clientX, y: event.clientY, color: colorСircuit, colorFill: "none" });
+    // setTypeFigure()
+    // setTypeKnot()
+    coordinateToArray.push({x: event.clientX, y: event.clientY, color: colorСircuit, colorFill: colorFillPolygon });
 
     this.setState({ coordinateToArray })
     console.log(coordinateToArray)
-    return coordinateToArray
+  }
+
+  handleChangeFigure(event: React.ChangeEvent<HTMLSelectElement>) {
+    this.setState({selectFigure: event.target.value});
+    console.log(event.target.value)
+  }
+  
+  handleChangeKnot(event: React.ChangeEvent<HTMLSelectElement>) {
+    this.setState({selectKnot: event.target.value});
+    console.log(event.target.value)
   }
 
   loadCoordinateAndColor() {
@@ -163,18 +179,17 @@ class Field extends React.Component<IFieldProps, IFieldState> {
 
 
     //Polygon
-    function createPolygon(element: ICoordinates) {
+    function createPolygon(element: ICoordinate) {
       return (element.x + " " + element.y)
     }
 
     //Отрисовка линии path
-    function createLinePath(element: ICoordinates, index: number) {
+    function createLinePath(element: ICoordinate, index: number) {
       let pointM = "M";
       let pointL = "L";
       return ((index === 0) ? pointM : pointL) + (element.x + " " + element.y)
     }
 
-    
     // Соединения начальной точки и конечной с проверкой наличия двух отрисованных двух линий
     // let compoundPointLinePath = false;
     //ИСПОЛЬЗОВАТЬ КАЛЛ БЭК для отрисовки
@@ -210,7 +225,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
 
     //Рисование кружков или квадратов в узлах
 
-    function createFiguresKnot(element: ICoordinates, index: number) {
+    function createFiguresKnot(element: ICoordinate, index: number) {
       return (checkKnotRect)
         ? <rect key={index} x={element.x - 2} y={element.y - 2} width="5" height="5" fill={colorСircuit} stroke={colorСircuit} />
         : <circle key={index} cx={element.x} cy={element.y} r="5" fill={colorСircuit} stroke={colorСircuit} />
@@ -259,6 +274,23 @@ class Field extends React.Component<IFieldProps, IFieldState> {
         <button className="buttonPolygon" onClick={() => changeFillPolygon()}> {textButtonFillPolygon} </button>
 
         <button className="save" onClick={() => onLine()}> {textButtonLine} </button>
+        <br />
+        <label>
+          Выберите фигуру для рисования:
+          <select value={this.state.selectFigure} onChange={this.handleChangeFigure}>
+            <option value="line">Линия</option>
+            <option value="linePath">Линия сложная</option>
+            <option value="polygon">Полигон</option>
+          </select>
+        </label>
+        <br />
+        <label>
+          Выберите фигуру в узлах:
+          <select value={this.state.selectKnot} onChange={this.handleChangeKnot}>
+            <option value="circle">Кружок</option>
+            <option value="rect">Квадратик</option>
+          </select>
+        </label>
 
       </div>
     );
