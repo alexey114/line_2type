@@ -124,8 +124,6 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     this.handleChangeKnot = this.handleChangeKnot.bind(this);
   }
 
-  //Сделать чек боксы для фигру + отрисовку вывести в отдельную функцию
-
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
   setCoordinateToArray(event: React.MouseEvent) {
@@ -189,10 +187,13 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       let pointL = "L";
       return ((index === 0) ? pointM : pointL) + (element.x + " " + element.y)
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 750e0246526dbd572d4bdbc3eb01eb0e6e63314f
     // Соединения начальной точки и конечной с проверкой наличия двух отрисованных двух линий
     // let compoundPointLinePath = false;
-    //ИСПОЛЬЗОВАТЬ КАЛЛ БЭК для отрисовки
 
     function completeLinePath() {
       if (arrayCoordinat.length > 2) {
