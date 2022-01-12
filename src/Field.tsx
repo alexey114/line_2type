@@ -23,12 +23,12 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     super(props);
 
     this.state = {
-      coordinateToArray: [], //основной массив с координатами
-      selectFigure: 'linePath',
-      selectKnot: 'circle',
-      buttonColor: false,
-      buttonFillColor: false,
-      buttonCloseLinePath: false
+      coordinateToArray: [],     //основной массив с координатами
+      selectFigure: 'linePath',  //выбор по умолчанию для визуализации сложной линиия
+      selectKnot: 'circle',      //выбор по умолчанию, для визуализации в узлах кружков
+      buttonColor: false,        //переключение света контуров
+      buttonFillColor: false,    //переключение цвета заливки
+      buttonCloseLinePath: false //закрытие линий Path
     };
 
     this.setCoordinateToArray = this.setCoordinateToArray.bind(this);
@@ -40,63 +40,36 @@ class Field extends React.Component<IFieldProps, IFieldState> {
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
   setCoordinateToArray(event: React.MouseEvent) {
     let coordinateToArray = [...this.state.coordinateToArray]
-    coordinateToArray.push({x: event.clientX, y: event.clientY});
+    coordinateToArray.push({ x: event.clientX, y: event.clientY });
     this.setState({ coordinateToArray })
-    console.log('setState',coordinateToArray)
+    console.log('setState', coordinateToArray)
   }
 
   //ВЫБОР ФИГУРЫ ЧЕРЕЗ SELECT
   handleChangeFigure(event: React.ChangeEvent<HTMLSelectElement>) {
-    this.setState({selectFigure: event.target.value});
+    this.setState({ selectFigure: event.target.value });
     console.log(event.target.value)
   }
 
   //ВЫБОР УЗЛА ЧЕРЕЗ SELECT
   handleChangeKnot(event: React.ChangeEvent<HTMLSelectElement>) {
-    this.setState({selectKnot: event.target.value});
+    this.setState({ selectKnot: event.target.value });
     console.log(event.target.value)
   }
 
-  setColor(){
-    this.setState({buttonColor: (this.state.buttonColor)?false:true})
+  setColor() {
+    this.setState({ buttonColor: (this.state.buttonColor) ? false : true })
   }
 
-  setColorFill(){
-    this.setState({buttonFillColor: (this.state.buttonFillColor)?false:true})
+  setColorFill() {
+    this.setState({ buttonFillColor: (this.state.buttonFillColor) ? false : true })
   }
 
-  setCloseLinePath(){
-    this.setState({buttonCloseLinePath: true})
+  setCloseLinePath() {
+    this.setState({ buttonCloseLinePath: (this.state.buttonCloseLinePath) ? false : true })
   }
 
   render() {
-
-    let redColor = this.state.buttonColor;
-    let colorСircuit = "black";
-    let textButtonColor = "Красный выкл"  
-
-    let fillPolygon = this.state.buttonFillColor;
-    let colorFillPolygon = "none"
-    let textButtonFillPolygon = "Заливка полигона выкл"
-
-    function changeColor() {
-      colorСircuit = (redColor) ? "red":"black";
-      textButtonColor = (redColor) ? "Красный вкл" : "Красный выкл"
-    }
-
-    changeColor()
-
-    function changeFillPolygon() { 
-      colorFillPolygon = (fillPolygon) ? "blue" : "none"
-      textButtonFillPolygon = (fillPolygon) ? "Заливка полигона вкл" : "Заливка полигона выкл"
-    }
-
-    changeFillPolygon()
-
-    //Очистка SVG поля для рисования
-    function buttonRemove() {
-      window.location.reload()
-    }
 
     let arrayCoordinat = this.state.coordinateToArray
     let optionFigure = this.state.selectFigure
@@ -106,6 +79,42 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     let coordinatePolygon: string[] = []
     let coordinateLinePath: string = ""
 
+    let redColor = this.state.buttonColor;
+    let colorСircuit = "black";
+    let textButtonColor = "Красный выкл"
+
+    let fillPolygon = this.state.buttonFillColor;
+    let colorFillPolygon = "none"
+    let textButtonFillPolygon = "Заливка полигона выкл"
+
+    let buttonClose = this.state.buttonCloseLinePath;
+    let textButtonCloseLinePath = "Соединить точки"
+
+    function changeColor() {
+      colorСircuit = (redColor) ? "red" : "black";
+      textButtonColor = (redColor) ? "Красный вкл" : "Красный выкл"
+    }
+    changeColor()
+
+    function changeFillPolygon() {
+      colorFillPolygon = (fillPolygon) ? "blue" : "none"
+      textButtonFillPolygon = (fillPolygon) ? "Заливка полигона вкл" : "Заливка полигона выкл"
+    }
+    changeFillPolygon()
+
+    function changeCloseLinePath(){
+      if(optionFigure === 'linePath'){
+        if (arrayCoordinat.length > 2) {
+          textButtonCloseLinePath = (buttonClose)?"Убрать соединение" : "Соединить точки"
+          }
+      }
+    }
+    changeCloseLinePath()
+
+    //Очистка SVG поля для рисования
+    function buttonRemove() {
+      window.location.reload()
+    }
 
     //Polygon
     function createPolygon(element: ICoordinate) {
@@ -134,13 +143,13 @@ class Field extends React.Component<IFieldProps, IFieldState> {
           coordinatePolygon = arrayCoordinat.map(createPolygon)
           :
           coordinateLinePath += arrayCoordinat.map(createLinePath).join(" ")
-          if(closeLinePath === true){
-            if(arrayCoordinat.length > 2){
-              coordinateLinePath += " Z "
-            } else {
-              alert("нарисуйте минимум 2 линии")
-            }
+        if (closeLinePath === true) {
+          if (arrayCoordinat.length > 2) {
+            coordinateLinePath += " Z "
+          } else {
+            alert("нарисуйте минимум 2 линии")
           }
+        }
       }
     }
 
@@ -155,39 +164,39 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     }
     let paintFiguresKnot = arrayCoordinat.map(createFiguresKnot)
 
-  //СОХРАНЕНИЕ КООРДИНАТ
-  function saveCoordinateAndColor() {
-    if (arrayCoordinat.length > 0) {
-      localStorage.setItem("CoordinateArray", JSON.stringify(arrayCoordinat));
-      localStorage.setItem("colorLocalStorage", colorСircuit);
-      localStorage.setItem("colorPolygonFillLocalStorage", colorFillPolygon);
-      alert('Coxpaнено')
-    } else {
-      alert('нарисуйте минимум одну фигуру')
-    }
-  }
-
-  //ЗАГРУЗКА КООРДИНАТ
-  function loadCoordinateAndColor() {
-    let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!);
-    arrayCoordinat = getCoordinateArray
-
-    let loadColor = localStorage.getItem("colorLocalStorage")!;
-    let loadColorPolygonFill = localStorage.getItem("colorPolygonFillLocalStorage")!;
-
-    console.log(arrayCoordinat)
-
-    if (getCoordinateArray === null) {
-      alert("LocalStorage пуст")
-    } else {
-      if (loadColor !== colorСircuit) {
-        colorСircuit = (colorСircuit === "red") ? "black" : "red";
-      }
-      if (loadColorPolygonFill !== colorFillPolygon) {
-        colorFillPolygon = (colorFillPolygon === "blue") ? "none" : "blue";
+    //СОХРАНЕНИЕ КООРДИНАТ
+    function saveCoordinateAndColor() {
+      if (arrayCoordinat.length > 0) {
+        localStorage.setItem("CoordinateArray", JSON.stringify(arrayCoordinat));
+        localStorage.setItem("colorLocalStorage", colorСircuit);
+        localStorage.setItem("colorPolygonFillLocalStorage", colorFillPolygon);
+        alert('Coxpaнено')
+      } else {
+        alert('нарисуйте минимум одну фигуру')
       }
     }
-  }
+
+    //ЗАГРУЗКА КООРДИНАТ
+    function loadCoordinateAndColor() {
+      let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!);
+      arrayCoordinat = getCoordinateArray
+
+      let loadColor = localStorage.getItem("colorLocalStorage")!;
+      let loadColorPolygonFill = localStorage.getItem("colorPolygonFillLocalStorage")!;
+
+      console.log(arrayCoordinat)
+
+      if (getCoordinateArray === null) {
+        alert("LocalStorage пуст")
+      } else {
+        if (loadColor !== colorСircuit) {
+          colorСircuit = (colorСircuit === "red") ? "black" : "red";
+        }
+        if (loadColorPolygonFill !== colorFillPolygon) {
+          colorFillPolygon = (colorFillPolygon === "blue") ? "none" : "blue";
+        }
+      }
+    }
 
     const coordinatePolygonString = coordinatePolygon.join(" ")
 
@@ -220,7 +229,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
           </select>
         </label>
         <br />
-        <button className="buttonZ" onClick={() => this.setCloseLinePath()}>Соединить точки</button>
+        <button className="buttonZ" onClick={() => this.setCloseLinePath()}>{textButtonCloseLinePath}</button>
         <br />
         <button className="colorRed" onClick={() => this.setColor()}>{textButtonColor} </button>
         <button className="buttonPolygon" onClick={() => this.setColorFill()}> {textButtonFillPolygon} </button>
