@@ -10,8 +10,7 @@ interface IFieldState {
   selectKnot: string,
   buttonColor: boolean,
   buttonFillColor: boolean,
-  buttonCloseLinePath: boolean,
-  buttonLocalStorage: boolean,
+  buttonCloseLinePath: boolean
 }
 interface ICoordinate {
   x: number,
@@ -29,8 +28,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       selectKnot: 'circle',      //выбор по умолчанию, для визуализации в узлах кружков
       buttonColor: false,        //переключение света контуров
       buttonFillColor: false,    //переключение цвета заливки
-      buttonCloseLinePath: false, //закрытие линий Path
-      buttonLocalStorage: false
+      buttonCloseLinePath: false //закрытие линий Path
     }
 
     this.setCoordinateToArray = this.setCoordinateToArray.bind(this)
@@ -73,13 +71,8 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     this.setState({ buttonCloseLinePath: (this.state.buttonCloseLinePath) ? false : true })
   }
 
-  //СОЕДИНЕНИЕ ЛИНИЙ
-  getCoordinatesLocalStorage() {
-    this.setState({ buttonLocalStorage: true })
-  }
-
   //ЗАГРУЗКА КООРДИНАТ ИЗ LOCAL STORAGE
-  loadCoordinateAndColor() {
+  loadCoordinate() {
     let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!)
     if(getCoordinateArray === null){
       alert("Local Storage пуст")
@@ -95,7 +88,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     let optionKnot = this.state.selectKnot
     let closeLinePath = this.state.buttonCloseLinePath
     let coordinateLine: JSX.Element[] = []
-    let coordinatePolygon: string[] = []
+    let coordinatePolygon: string = ""
     let coordinateLinePath: string = ""
 
     let redColor = this.state.buttonColor
@@ -159,7 +152,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       } else {
         (optionFigure === 'polygon')
           ?
-          coordinatePolygon = arrayCoordinat.map(createPolygon)
+          coordinatePolygon += arrayCoordinat.map(createPolygon).join(" ")
           :
           coordinateLinePath += arrayCoordinat.map(createLinePath).join(" ")
         if (closeLinePath === true) {
@@ -184,7 +177,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     let paintFiguresKnot = arrayCoordinat.map(createFiguresKnot)
 
     //СОХРАНЕНИЕ КООРДИНАТ
-    function saveCoordinateAndColor() {
+    function saveCoordinate() {
       if (arrayCoordinat.length > 0) {
         localStorage.setItem("CoordinateArray", JSON.stringify(arrayCoordinat))
         alert('Coxpaнено')
@@ -193,8 +186,6 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       }
     }
 
-    const coordinatePolygonString = coordinatePolygon.join(" ")
-
     return (
 
       <div>
@@ -202,7 +193,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
         <svg onClick={this.setCoordinateToArray} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
           {paintFiguresKnot}
           {coordinateLine}
-          <polygon points={coordinatePolygonString} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="10" />
+          <polygon points={coordinatePolygon} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="10" />
           <path id="line" d={coordinateLinePath} stroke={colorСircuit} />
         </svg>
 
@@ -215,6 +206,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
           </select>
         </label>
         <br />
+
         <label>
           Выберите фигуру в узлах:
           <br />
@@ -224,16 +216,17 @@ class Field extends React.Component<IFieldProps, IFieldState> {
           </select>
         </label>
         <br />
+
         <button className="buttonZ" onClick={() => this.setCloseLinePath()}>{textButtonCloseLinePath}</button>
         <br />
+
         <button className="colorRed" onClick={() => this.setColor()}>{textButtonColor} </button>
         <button className="buttonPolygon" onClick={() => this.setColorFill()}> {textButtonFillPolygon} </button>
         <br />
 
-        <button className="save" onClick={() => saveCoordinateAndColor()}> Сохранить </button>
-        <button className="save" onClick={() => this.loadCoordinateAndColor()}> Загрузить </button>
+        <button className="save" onClick={() => saveCoordinate()}> Сохранить </button>
+        <button className="save" onClick={() => this.loadCoordinate()}> Загрузить </button>
         <button className="save" onClick={() => buttonRemove()}> Очистить </button>
-
         <br />
 
       </div>
