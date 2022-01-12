@@ -1,6 +1,6 @@
-import React from 'react';
-import './Field.css';
-import './Button.css';
+import React from 'react'
+import './Field.css'
+import './Button.css'
 
 interface IFieldProps {
 }
@@ -21,7 +21,7 @@ interface ICoordinate {
 class Field extends React.Component<IFieldProps, IFieldState> {
 
   constructor(props: IFieldProps) {
-    super(props);
+    super(props)
 
     this.state = {
       coordinateToArray: [],     //основной массив с координатами
@@ -31,30 +31,30 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       buttonFillColor: false,    //переключение цвета заливки
       buttonCloseLinePath: false, //закрытие линий Path
       buttonLocalStorage: false
-    };
+    }
 
-    this.setCoordinateToArray = this.setCoordinateToArray.bind(this);
-    this.handleChangeFigure = this.handleChangeFigure.bind(this);
-    this.handleChangeKnot = this.handleChangeKnot.bind(this);
+    this.setCoordinateToArray = this.setCoordinateToArray.bind(this)
+    this.handleChangeFigure = this.handleChangeFigure.bind(this)
+    this.handleChangeKnot = this.handleChangeKnot.bind(this)
   }
 
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
   setCoordinateToArray(event: React.MouseEvent) {
     let coordinateToArray = [...this.state.coordinateToArray]
-    coordinateToArray.push({ x: event.clientX, y: event.clientY });
+    coordinateToArray.push({ x: event.clientX, y: event.clientY })
     this.setState({ coordinateToArray })
     console.log('setState', coordinateToArray)
   }
 
   //ВЫБОР ФИГУРЫ ЧЕРЕЗ SELECT
   handleChangeFigure(event: React.ChangeEvent<HTMLSelectElement>) {
-    this.setState({ selectFigure: event.target.value });
+    this.setState({ selectFigure: event.target.value })
     console.log(event.target.value)
   }
 
   //ВЫБОР УЗЛА ЧЕРЕЗ SELECT
   handleChangeKnot(event: React.ChangeEvent<HTMLSelectElement>) {
-    this.setState({ selectKnot: event.target.value });
+    this.setState({ selectKnot: event.target.value })
     console.log(event.target.value)
   }
 
@@ -80,7 +80,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
 
   //ЗАГРУЗКА КООРДИНАТ ИЗ LOCAL STORAGE
   loadCoordinateAndColor() {
-    let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!);
+    let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!)
     if(getCoordinateArray === null){
       alert("Local Storage пуст")
     } else {
@@ -98,19 +98,19 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     let coordinatePolygon: string[] = []
     let coordinateLinePath: string = ""
 
-    let redColor = this.state.buttonColor;
-    let colorСircuit = "black";
+    let redColor = this.state.buttonColor
+    let colorСircuit = "black"
     let textButtonColor = "Красный выкл"
 
-    let fillPolygon = this.state.buttonFillColor;
+    let fillPolygon = this.state.buttonFillColor
     let colorFillPolygon = "none"
     let textButtonFillPolygon = "Заливка полигона выкл"
 
-    let buttonClose = this.state.buttonCloseLinePath;
+    let buttonClose = this.state.buttonCloseLinePath
     let textButtonCloseLinePath = "Соединить точки"
 
     function changeColor() {
-      colorСircuit = (redColor) ? "red" : "black";
+      colorСircuit = (redColor) ? "red" : "black"
       textButtonColor = (redColor) ? "Красный вкл" : "Красный выкл"
     }
     changeColor()
@@ -142,8 +142,8 @@ class Field extends React.Component<IFieldProps, IFieldState> {
 
     //Отрисовка линии path
     function createLinePath(element: ICoordinate, index: number) {
-      let pointM = "M";
-      let pointL = "L";
+      let pointM = "M"
+      let pointL = "L"
       return ((index === 0) ? pointM : pointL) + (element.x + " " + element.y)
     }
 
@@ -186,7 +186,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     //СОХРАНЕНИЕ КООРДИНАТ
     function saveCoordinateAndColor() {
       if (arrayCoordinat.length > 0) {
-        localStorage.setItem("CoordinateArray", JSON.stringify(arrayCoordinat));
+        localStorage.setItem("CoordinateArray", JSON.stringify(arrayCoordinat))
         alert('Coxpaнено')
       } else {
         alert('нарисуйте минимум одну фигуру')
@@ -237,8 +237,8 @@ class Field extends React.Component<IFieldProps, IFieldState> {
         <br />
 
       </div>
-    );
+    )
   }
 }
 
-export default Field;
+export default Field
