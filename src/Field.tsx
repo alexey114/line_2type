@@ -10,7 +10,8 @@ interface IFieldState {
   selectKnot: string,
   buttonColor: boolean,
   buttonFillColor: boolean,
-  buttonCloseLinePath: boolean
+  buttonCloseLinePath: boolean,
+  buttonLocalStorage: boolean,
 }
 interface ICoordinate {
   x: number,
@@ -28,13 +29,13 @@ class Field extends React.Component<IFieldProps, IFieldState> {
       selectKnot: 'circle',      //выбор по умолчанию, для визуализации в узлах кружков
       buttonColor: false,        //переключение света контуров
       buttonFillColor: false,    //переключение цвета заливки
-      buttonCloseLinePath: false //закрытие линий Path
+      buttonCloseLinePath: false, //закрытие линий Path
+      buttonLocalStorage: false
     };
 
     this.setCoordinateToArray = this.setCoordinateToArray.bind(this);
     this.handleChangeFigure = this.handleChangeFigure.bind(this);
     this.handleChangeKnot = this.handleChangeKnot.bind(this);
-
   }
 
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
@@ -57,16 +58,34 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     console.log(event.target.value)
   }
 
+  //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРА
   setColor() {
     this.setState({ buttonColor: (this.state.buttonColor) ? false : true })
   }
 
+  //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ
   setColorFill() {
     this.setState({ buttonFillColor: (this.state.buttonFillColor) ? false : true })
   }
 
+  //СОЕДИНЕНИЕ ЛИНИЙ
   setCloseLinePath() {
     this.setState({ buttonCloseLinePath: (this.state.buttonCloseLinePath) ? false : true })
+  }
+
+  //СОЕДИНЕНИЕ ЛИНИЙ
+  getCoordinatesLocalStorage() {
+    this.setState({ buttonLocalStorage: true })
+  }
+
+  //ЗАГРУЗКА КООРДИНАТ ИЗ LOCAL STORAGE
+  loadCoordinateAndColor() {
+    let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!);
+    if(getCoordinateArray === null){
+      alert("Local Storage пуст")
+    } else {
+      this.setState({ coordinateToArray: [...getCoordinateArray]})
+    }
   }
 
   render() {
@@ -168,33 +187,9 @@ class Field extends React.Component<IFieldProps, IFieldState> {
     function saveCoordinateAndColor() {
       if (arrayCoordinat.length > 0) {
         localStorage.setItem("CoordinateArray", JSON.stringify(arrayCoordinat));
-        localStorage.setItem("colorLocalStorage", colorСircuit);
-        localStorage.setItem("colorPolygonFillLocalStorage", colorFillPolygon);
         alert('Coxpaнено')
       } else {
         alert('нарисуйте минимум одну фигуру')
-      }
-    }
-
-    //ЗАГРУЗКА КООРДИНАТ
-    function loadCoordinateAndColor() {
-      let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!);
-      arrayCoordinat = getCoordinateArray
-
-      let loadColor = localStorage.getItem("colorLocalStorage")!;
-      let loadColorPolygonFill = localStorage.getItem("colorPolygonFillLocalStorage")!;
-
-      console.log(arrayCoordinat)
-
-      if (getCoordinateArray === null) {
-        alert("LocalStorage пуст")
-      } else {
-        if (loadColor !== colorСircuit) {
-          colorСircuit = (colorСircuit === "red") ? "black" : "red";
-        }
-        if (loadColorPolygonFill !== colorFillPolygon) {
-          colorFillPolygon = (colorFillPolygon === "blue") ? "none" : "blue";
-        }
       }
     }
 
@@ -236,7 +231,7 @@ class Field extends React.Component<IFieldProps, IFieldState> {
         <br />
 
         <button className="save" onClick={() => saveCoordinateAndColor()}> Сохранить </button>
-        <button className="save" onClick={() => loadCoordinateAndColor()}> Загрузить </button>
+        <button className="save" onClick={() => this.loadCoordinateAndColor()}> Загрузить </button>
         <button className="save" onClick={() => buttonRemove()}> Очистить </button>
 
         <br />
