@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useLayoutEffect } from 'react'
 import './Field.css'
 import './Button.css'
 
@@ -15,7 +15,7 @@ interface ICoordinate {
   y: number
 }
 
-function Field(){
+function Field() {
 
   // let coordinateLine: JSX.Element[] = []  //Массив с координатами обычных линий для отрисовки
   let coordinatePolygon: string = ""      //Строка с координатами полигона
@@ -29,6 +29,7 @@ function Field(){
 
   // let textButtonCloseLinePath = "Соединить точки"     //Текст кнопки закрытия линии Path
 
+  let [windowSize, setWindowSize] = useState([0, 0])                   //Отслеживание размера окна браузера
   let [coordinateToArray, setCoordinateArray] = useState([{ x: 0, y: 0 }]) //ОСНОВНОЙ массив координат
   // let [buttonCloseLinePath, setButtonCloseLinePath] = useState(false)      //соединение PATH линий
   // let [selectFigure, setSelectFigure]  = useState('linePath')              //выбор по умолчанию для визуализации сложной линиия
@@ -38,11 +39,24 @@ function Field(){
 
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
-  function setCoordinateToArray(event: React.MouseEvent) {
+  function setCoordinateToArray(event: any) {
+    let offset = event.target.getBoundingClientRect() //отслеживание положения поля
     let coordinate = [...coordinateToArray]
-    coordinate.push({ x: event.clientX, y: event.clientY })
+    coordinate.push({ x: event.clientX - offset.left, y: event.clientY - offset.top })
     setCoordinateArray(coordinate)
   }
+
+  useLayoutEffect(() => {
+    //Изменение размера окна браузераы
+    function changeWindow() {
+        setWindowSize([window.innerWidth - 50, window.innerHeight - 100])
+        console.log(window.innerWidth, window.innerHeight)
+    }
+    window.addEventListener("resize", changeWindow);
+    changeWindow()
+    return () => window.removeEventListener("resize", changeWindow);
+
+  }, [])
 
   //СОЕДИНЕНИЕ ЛИНИЙ
   // function setCloseLinePath() {
@@ -60,17 +74,17 @@ function Field(){
   //   console.log(event.target.value)
   // }
 
-    //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРА
-    function setColor() {
-     setButtonColor( (buttonColor) ? false : true )
-    }
-  
-    //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ
-    function setColorFill() {
-      setButtonFillColor( (buttonFillColor) ? false : true )
-    }
+  //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРА
+  function setColor() {
+    setButtonColor((buttonColor) ? false : true)
+  }
 
-    //ЗАГРУЗКА КООРДИНАТ ИЗ LOCAL STORAGE
+  //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ
+  function setColorFill() {
+    setButtonFillColor((buttonFillColor) ? false : true)
+  }
+
+  //ЗАГРУЗКА КООРДИНАТ ИЗ LOCAL STORAGE
   function loadCoordinate() {
     let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!)
     if (getCoordinateArray === null) {
@@ -149,7 +163,7 @@ function Field(){
 
   //Рисование ПОЛИГОНОВ
 
-  function createFigures(){
+  function createFigures() {
     coordinatePolygon += coordinateToArray.map(createPolygon).join(" ")
   }
   createFigures()
@@ -176,45 +190,47 @@ function Field(){
 
   return (
 
-    <div>
-      <svg onClick={setCoordinateToArray} width="350" height="300" viewBox="0 0 350 300" xmlns="http://www.w3.org/2000/svg">
+    <div className='polygonFields' style={{ width: windowSize[0], height: windowSize[1] }}>
+      <svg className='fieldsSVG' onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
         {/* {paintFiguresKnot} */}
         {/* {coordinateLine} */}
         <polygon points={coordinatePolygon} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="10" />
         {/* <path id="line" d={coordinateLinePath} fill={colorFillPolygon} stroke={colorСircuit} /> */}
       </svg>
 
-      {/* <label>
-        Выберите фигуру для рисования:
-        <select value={selectFigure} onChange={handleChangeFigure}>
-          <option value="line">Линия</option>
-          <option value="linePath">Линия сложная</option>
-          <option value="polygon">Полигон</option>
-        </select>
-      </label>
-      <br />
-
-      <label>
-        Выберите фигуру в узлах:
+      <div className='buttonBox'>
+        {/* <label>
+          Выберите фигуру для рисования:
+          <select value={selectFigure} onChange={handleChangeFigure}>
+            <option value="line">Линия</option>
+            <option value="linePath">Линия сложная</option>
+            <option value="polygon">Полигон</option>
+          </select>
+        </label>
         <br />
-        <select value={selectKnot} onChange={handleChangeKnot}>
-          <option value="circle">Кружок</option>
-          <option value="rect">Квадратик</option>
-        </select>
-      </label>
-      <br /> */}
 
-      {/* <button className="buttonZ" onClick={() => setCloseLinePath()}>{textButtonCloseLinePath}</button> */}
-      <br />
+        <label>
+          Выберите фигуру в узлах:
+          <br />
+          <select value={selectKnot} onChange={handleChangeKnot}>
+            <option value="circle">Кружок</option>
+            <option value="rect">Квадратик</option>
+          </select>
+        </label>
+        <br /> */}
 
-      <button className="colorRed" onClick={() => setColor()}>{textButtonColor} </button>
-      <button className="buttonPolygon" onClick={() => setColorFill()}> {textButtonFillPolygon} </button>
-      <br />
+        {/* <button className="buttonZ" onClick={() => setCloseLinePath()}>{textButtonCloseLinePath}</button> */}
+        <br />
 
-      <button className="save" onClick={() => saveCoordinate()}> Сохранить </button>
-      <button className="save" onClick={() => loadCoordinate()}> Загрузить </button>
-      <button className="save" onClick={() => buttonRemove()}> Очистить </button>
-      <br />
+        <button className="colorRed" onClick={() => setColor()}>{textButtonColor} </button>
+        <button className="buttonPolygon" onClick={() => setColorFill()}> {textButtonFillPolygon} </button>
+        <br />
+
+        <button className="save" onClick={() => saveCoordinate()}> Сохранить </button>
+        <button className="save" onClick={() => loadCoordinate()}> Загрузить </button>
+        <button className="save" onClick={() => buttonRemove()}> Очистить </button>
+        <br />
+      </div>
     </div>
   )
 }
