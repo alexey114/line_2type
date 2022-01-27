@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import './Field.css'
 import './Button.css'
 
@@ -29,13 +29,18 @@ function Field() {
 
   // let textButtonCloseLinePath = "Соединить точки"     //Текст кнопки закрытия линии Path
 
-  let [windowSize, setWindowSize] = useState([0, 0])                   //Отслеживание размера окна браузера
-  let [coordinateToArray, setCoordinateArray] = useState([{ x: 0, y: 0 }]) //ОСНОВНОЙ массив координат
+  let [newCoordinate, setNewCoordinate] = useState({x:100,y:100})
+  let [downCoordinate, setDownCoordinate] = useState({x:0,y:0})
+
+  let [windowSize, setWindowSize] = useState([0, 0])                        //Отслеживание размера окна браузера
+  let [coordinateToArray, setCoordinateArray] = useState([{ x: 0, y: 0 }])  //ОСНОВНОЙ массив координат
   // let [buttonCloseLinePath, setButtonCloseLinePath] = useState(false)      //соединение PATH линий
   // let [selectFigure, setSelectFigure]  = useState('linePath')              //выбор по умолчанию для визуализации сложной линиия
   // let [selectKnot, setSelectKnot] = useState('circle')                     //выбор по умолчанию, для визуализации в узлах кружков
-  let [buttonColor, setButtonColor] = useState(false)                      //переключение цвета контуров
-  let [buttonFillColor, setButtonFillColor] = useState(false)              //переключение цвета заливки
+  let [buttonColor, setButtonColor] = useState(false)                       //переключение цвета контуров
+  let [buttonFillColor, setButtonFillColor] = useState(false)               //переключение цвета заливки
+
+  let [down, setDown] = useState(false)                                     //отслеживание зажата ли кнопка
 
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
@@ -44,10 +49,13 @@ function Field() {
     let coordinate = [...coordinateToArray]
     coordinate.push({ x: event.clientX - offset.left, y: event.clientY - offset.top })
     setCoordinateArray(coordinate)
+    console.log("coordinate", coordinate)
   }
 
-  useLayoutEffect(() => {
-    //Изменение размера окна браузераы
+  console.log("вне", coordinateToArray)
+
+  useEffect(() => {
+    //Изменение размера окна браузера
     function changeWindow() {
         setWindowSize([window.innerWidth - 50, window.innerHeight - 100])
         console.log(window.innerWidth, window.innerHeight)
@@ -57,6 +65,80 @@ function Field() {
     return () => window.removeEventListener("resize", changeWindow);
 
   }, [])
+
+  //ОТСЛЕЖИВАНИЕ НАЖАТИЯ КНОПКИ
+
+  function trackingCoordinatesDown(e: React.MouseEvent) {
+    setDown(true)
+    console.log('down')
+}
+
+//КООРДИНАТЫ ПОСЛЕ НАЖАТИЯ
+
+function searchCoordinateDown(e: React.MouseEvent){
+  //нужно создать функцию, которая будет отслеживать нажатия в любое место для сравнения в массиве потом
+  console.log("searchCoordinateDown", {x:e.clientX, y:e.clientY})
+  test()
+  setDownCoordinate({x:e.clientX, y:e.clientY})
+}
+
+//ОТСЛЕЖИВАНИЕ ПЕРЕМЕШЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
+
+function trackingCoordinatesMove(e: any) {
+  let rect = e.target.getBoundingClientRect()
+  if(down){
+      setNewCoordinate({x:e.clientX, y:e.clientY})
+      // console.log("element", rect.left)
+      // console.log("element", rect.top)
+      console.log(e.clientX, e.clientY)
+      console.log(newCoordinate)
+      console.log(setNewCoordinate)
+      // console.log("ИТОГ", e.clientX - rect.left)
+      // console.log("ИТОГ", e.clientY - rect.top)
+  }
+}
+
+//ОТСЛЕЖИВАНИЕ ОТПУСКАНИЯ КНОПКИ
+
+function trackingCoordinatesUp(e: React.MouseEvent) {
+  setDown(false)
+  console.log('Up')
+}
+
+//ПРОВЕРКА В МАССИВЕ ПОДХОДЯЩИХ КООРДИНАТ
+
+// useEffect(() => {
+  function test(){
+    // console.log(coordinateToArray.findIndex(function(item){
+    //   if(item.x === 0 && item.y === 0){
+    //     return console.log("Ура")
+    //   }
+    //   return console.log("конец")
+    let indexX = coordinateToArray.findIndex(function(element){
+      if(element.x-10<element.x && element.x<element.x+10){
+        console.log("1")
+      }
+    }) //0
+    let indexY = coordinateToArray.findIndex(function(element){
+      if(element.y-10<element.y && element.y<element.y+10){
+        console.log("2")
+      }
+    }) //0
+    let index2 = coordinateToArray.findIndex(element => element.y === downCoordinate.y)//0
+    console.log(indexX)
+    console.log(indexY)
+    console.log("newCoordinate",downCoordinate)
+    if(indexX >= 0 && indexX === index2){
+      let coordinate = [...coordinateToArray]
+      coordinate.splice(indexX, 1, newCoordinate)
+      setCoordinateArray(coordinate)
+    }
+    // }))
+    console.log(coordinateToArray)
+    console.log("findIndex")
+  }
+
+  // }, [coordinateToArray, newCoordinate])
 
   //СОЕДИНЕНИЕ ЛИНИЙ
   // function setCloseLinePath() {
@@ -176,7 +258,17 @@ function Field() {
   //     ? <circle key={index} cx={element.x} cy={element.y} r="5" fill={colorFillPolygon} stroke={colorСircuit} />
   //     : <rect key={index} x={element.x - 2} y={element.y - 2} width="5" height="5" fill={colorFillPolygon} stroke={colorСircuit} />
   // }
-  // let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
+  
+
+  //РИСОВАНИЕ КРУЖКОВ
+
+  ///!!!Если координаты совпадают, перенести по новым данным, если нет - добавить кружок
+  ///!!!Если координаты грани совпадают, то перенести по новым данным, если нет - добавить точку
+
+  function createFiguresKnot(element: ICoordinate, index: number) {
+      return <circle key={index} onMouseDown={trackingCoordinatesDown} cx={element.x} cy={element.y} style={{zIndex:1000}} r="20" fill={colorFillPolygon} stroke={colorСircuit} />        
+    }
+  let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
 
   //СОХРАНЕНИЕ КООРДИНАТ
   function saveCoordinate() {
@@ -191,10 +283,11 @@ function Field() {
   return (
 
     <div className='polygonFields' style={{ width: windowSize[0], height: windowSize[1] }}>
-      <svg className='fieldsSVG' onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
-        {/* {paintFiguresKnot} */}
+      <svg className='fieldsSVG' onMouseUp={trackingCoordinatesUp} onMouseMove={trackingCoordinatesMove} onMouseDown={searchCoordinateDown} onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
+        {paintFiguresKnot}
+        {/* <circle id="circle" onMouseDown={trackingCoordinatesDown} cx={newCoordinate.x} cy={newCoordinate.y} style={{zIndex:1000}} r="20" fill="black" stroke="black" /> */}
         {/* {coordinateLine} */}
-        <polygon points={coordinatePolygon} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="10" />
+        <polygon points={coordinatePolygon} onMouseMove={trackingCoordinatesMove} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="10" />
         {/* <path id="line" d={coordinateLinePath} fill={colorFillPolygon} stroke={colorСircuit} /> */}
       </svg>
 
