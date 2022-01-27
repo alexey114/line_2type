@@ -98,47 +98,56 @@ function trackingCoordinatesMove(e: any) {
   }
 }
 
-//ОТСЛЕЖИВАНИЕ ОТПУСКАНИЯ КНОПКИ
+//ПРОВЕРКА В МАССИВЕ ПОДХОДЯЩИХ КООРДИНАТ
+
+//функция CallBack для поиска в массиве
+
+function searchArrayX(element:{x:number, y:number}){
+  if((downCoordinate.x-10)<element.x && element.x<(downCoordinate.x+10)){
+    console.log(element.x)
+    console.log("true X")
+    return true
+  } else {
+    console.log("false X")
+    return false
+  }
+}
+
+function searchArrayY(element:{x:number, y:number}){
+  if((downCoordinate.y-10)<element.y && element.y<(downCoordinate.y+10)){
+    console.log(element.y)
+    console.log("true Y")
+    return true
+  } else {
+    console.log("false Y")
+    return false
+  }
+}
+
+  function test(){
+
+    let indexX = coordinateToArray.findIndex(searchArrayX) //0
+    let indexY = coordinateToArray.findIndex(searchArrayY) //0
+
+    console.log("indexX", indexX)
+    console.log("indexY", indexY)
+
+    if(indexX >= 0 && indexX === indexY){
+      let coordinate = [...coordinateToArray]
+      console.log("newCoordinate", newCoordinate)
+      coordinate.splice(indexX, 1, newCoordinate)
+      setCoordinateArray(coordinate)
+    }
+    console.log(coordinateToArray)
+    console.log("findIndex")
+  }
+
+  //ОТСЛЕЖИВАНИЕ ОТПУСКАНИЯ КНОПКИ
 
 function trackingCoordinatesUp(e: React.MouseEvent) {
   setDown(false)
   console.log('Up')
 }
-
-//ПРОВЕРКА В МАССИВЕ ПОДХОДЯЩИХ КООРДИНАТ
-
-// useEffect(() => {
-  function test(){
-    // console.log(coordinateToArray.findIndex(function(item){
-    //   if(item.x === 0 && item.y === 0){
-    //     return console.log("Ура")
-    //   }
-    //   return console.log("конец")
-    let indexX = coordinateToArray.findIndex(function(element){
-      if(element.x-10<element.x && element.x<element.x+10){
-        console.log("1")
-      }
-    }) //0
-    let indexY = coordinateToArray.findIndex(function(element){
-      if(element.y-10<element.y && element.y<element.y+10){
-        console.log("2")
-      }
-    }) //0
-    let index2 = coordinateToArray.findIndex(element => element.y === downCoordinate.y)//0
-    console.log(indexX)
-    console.log(indexY)
-    console.log("newCoordinate",downCoordinate)
-    if(indexX >= 0 && indexX === index2){
-      let coordinate = [...coordinateToArray]
-      coordinate.splice(indexX, 1, newCoordinate)
-      setCoordinateArray(coordinate)
-    }
-    // }))
-    console.log(coordinateToArray)
-    console.log("findIndex")
-  }
-
-  // }, [coordinateToArray, newCoordinate])
 
   //СОЕДИНЕНИЕ ЛИНИЙ
   // function setCloseLinePath() {
