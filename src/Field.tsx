@@ -17,20 +17,20 @@ interface ICoordinate {
 
 function Field() {
 
-  // let coordinateLine: JSX.Element[] = []  //Массив с координатами обычных линий для отрисовки
-  let coordinatePolygon: string = ""      //Строка с координатами полигона
-  // let coordinateLinePath: string = ""     //Строка с координатами линии Path
+  // let coordinateLine: JSX.Element[] = []             //Массив с координатами обычных линий для отрисовки
+  let coordinatePolygon: string = ""                  //Строка с координатами полигона
+  // let coordinateLinePath: string = ""                //Строка с координатами линии Path
 
-  let colorСircuit = "black"              //Цвет контуров
-  let textButtonColor = "Красный выкл"    //Текст кнопки переключения цветов
+  let colorСircuit = "black"                          //Цвет контуров
+  let textButtonColor = "Красный выкл"                //Текст кнопки переключения цветов
 
-  let colorFillPolygon = "none"           //Цвет заливки
+  let colorFillPolygon = "none"                       //Цвет заливки
   let textButtonFillPolygon = "Заливка полигона выкл" //Текст кнопки переключения заливки 
 
-  // let textButtonCloseLinePath = "Соединить точки"     //Текст кнопки закрытия линии Path
+  // let textButtonCloseLinePath = "Соединить точки"    //Текст кнопки закрытия линии Path
 
-  let [newCoordinate, setNewCoordinate] = useState({x:100,y:100})
-  let [downCoordinate, setDownCoordinate] = useState({x:0,y:0})
+  let [newCoordinate, setNewCoordinate] = useState({ x: 100, y: 100 })           //Координаты по завершению переноса
+  let [downCoordinate, setDownCoordinate] = useState({ x: 0, y: 0 })             //Координаты по нажатию на любое место поля
 
   let [windowSize, setWindowSize] = useState([0, 0])                        //Отслеживание размера окна браузера
   let [coordinateToArray, setCoordinateArray] = useState([{ x: 0, y: 0 }])  //ОСНОВНОЙ массив координат
@@ -49,16 +49,17 @@ function Field() {
     let coordinate = [...coordinateToArray]
     coordinate.push({ x: event.clientX - offset.left, y: event.clientY - offset.top })
     setCoordinateArray(coordinate)
-    console.log("coordinate", coordinate)
+    console.log("coordinateToArray из coordinate", coordinate)
   }
 
-  console.log("вне", coordinateToArray)
+  console.log("вне coordinateToArray", coordinateToArray)
+
+  //ИЗМЕНЕНИЕ РАЗМЕРА ОКНА БРАУЗЕРА
 
   useEffect(() => {
-    //Изменение размера окна браузера
     function changeWindow() {
-        setWindowSize([window.innerWidth - 50, window.innerHeight - 100])
-        console.log(window.innerWidth, window.innerHeight)
+      setWindowSize([window.innerWidth - 50, window.innerHeight - 100])
+      console.log(window.innerWidth, window.innerHeight)
     }
     window.addEventListener("resize", changeWindow);
     changeWindow()
@@ -71,60 +72,66 @@ function Field() {
   function trackingCoordinatesDown(e: React.MouseEvent) {
     setDown(true)
     console.log('down')
-}
+  }
 
-//КООРДИНАТЫ ПОСЛЕ НАЖАТИЯ
+  //КООРДИНАТЫ ПОСЛЕ НАЖАТИЯ
 
-function searchCoordinateDown(e: React.MouseEvent){
-  //нужно создать функцию, которая будет отслеживать нажатия в любое место для сравнения в массиве потом
-  console.log("searchCoordinateDown", {x:e.clientX, y:e.clientY})
-  test()
-  setDownCoordinate({x:e.clientX, y:e.clientY})
-}
+  function searchCoordinateDown(e: React.MouseEvent) {
+    //нужно создать функцию, которая будет отслеживать нажатия в любое место для сравнения в массиве потом
+    console.log("searchCoordinateDown", { x: e.clientX, y: e.clientY })
+    test()
+    setDownCoordinate({ x: e.clientX, y: e.clientY })
+  }
 
-//ОТСЛЕЖИВАНИЕ ПЕРЕМЕШЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
+  //ОТСЛЕЖИВАНИЕ ПЕРЕМЕШЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
 
-function trackingCoordinatesMove(e: any) {
-  let rect = e.target.getBoundingClientRect()
-  if(down){
-      setNewCoordinate({x:e.clientX, y:e.clientY})
+  function trackingCoordinatesMove(e: any) {
+    let rect = e.target.getBoundingClientRect()
+    if (down) {
+      setNewCoordinate({ x: e.clientX, y: e.clientY })
       // console.log("element", rect.left)
       // console.log("element", rect.top)
-      console.log(e.clientX, e.clientY)
+      // console.log(e.clientX, e.clientY)
       console.log(newCoordinate)
       console.log(setNewCoordinate)
       // console.log("ИТОГ", e.clientX - rect.left)
       // console.log("ИТОГ", e.clientY - rect.top)
+    }
   }
-}
 
-//ПРОВЕРКА В МАССИВЕ ПОДХОДЯЩИХ КООРДИНАТ
+  //ПРОВЕРКА В МАССИВЕ ПОДХОДЯЩИХ КООРДИНАТ
 
-//функция CallBack для поиска в массиве
+  //функция CallBack для поиска в массиве X с допуском 20 (плюс\минус 10)
 
-function searchArrayX(element:{x:number, y:number}){
-  if((downCoordinate.x-10)<element.x && element.x<(downCoordinate.x+10)){
-    console.log(element.x)
-    console.log("true X")
-    return true
-  } else {
-    console.log("false X")
-    return false
+  function searchArrayX(element: { x: number, y: number }) {
+    if ((downCoordinate.x - 10) < element.x && element.x < (downCoordinate.x + 10)) {
+      console.log(element.x)
+      console.log("true X")
+      return true
+    } else {
+      console.log("false X")
+      return false
+    }
   }
-}
 
-function searchArrayY(element:{x:number, y:number}){
-  if((downCoordinate.y-10)<element.y && element.y<(downCoordinate.y+10)){
-    console.log(element.y)
-    console.log("true Y")
-    return true
-  } else {
-    console.log("false Y")
-    return false
+  //функция CallBack для поиска в массиве Y с допуском 20 (плюс\минус 10)
+
+  function searchArrayY(element: { x: number, y: number }) {
+    if ((downCoordinate.y - 10) < element.y && element.y < (downCoordinate.y + 10)) {
+      console.log(element.y)
+      console.log("true Y")
+      return true
+    } else {
+      console.log("false Y")
+      return false
+    }
   }
-}
 
-  function test(){
+  //Поиск по значению и вывод индекса элемента
+
+  function test() {
+
+    //если элемент есть, то выводится его номер, если нет -1
 
     let indexX = coordinateToArray.findIndex(searchArrayX) //0
     let indexY = coordinateToArray.findIndex(searchArrayY) //0
@@ -132,7 +139,9 @@ function searchArrayY(element:{x:number, y:number}){
     console.log("indexX", indexX)
     console.log("indexY", indexY)
 
-    if(indexX >= 0 && indexX === indexY){
+    //проверка итога по наличию элемента и сравнение, если индексы идентичны, то перезаписать этот элемент
+
+    if (indexX >= 0 && indexY >= 0 && indexX === indexY) {
       let coordinate = [...coordinateToArray]
       console.log("newCoordinate", newCoordinate)
       coordinate.splice(indexX, 1, newCoordinate)
@@ -144,10 +153,10 @@ function searchArrayY(element:{x:number, y:number}){
 
   //ОТСЛЕЖИВАНИЕ ОТПУСКАНИЯ КНОПКИ
 
-function trackingCoordinatesUp(e: React.MouseEvent) {
-  setDown(false)
-  console.log('Up')
-}
+  function trackingCoordinatesUp(e: React.MouseEvent) {
+    setDown(false)
+    console.log('Up')
+  }
 
   //СОЕДИНЕНИЕ ЛИНИЙ
   // function setCloseLinePath() {
@@ -185,11 +194,15 @@ function trackingCoordinatesUp(e: React.MouseEvent) {
     }
   }
 
+  //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРОВ И ТЕКСТА КНОПКИ
+
   function changeColor() {
     colorСircuit = (buttonColor) ? "red" : "black"
     textButtonColor = (buttonColor) ? "Красный вкл" : "Красный выкл"
   }
   changeColor()
+
+  //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ И ТЕКСТА КНОПКИ
 
   function changeFillPolygon() {
     colorFillPolygon = (buttonFillColor) ? "blue" : "none"
@@ -267,7 +280,7 @@ function trackingCoordinatesUp(e: React.MouseEvent) {
   //     ? <circle key={index} cx={element.x} cy={element.y} r="5" fill={colorFillPolygon} stroke={colorСircuit} />
   //     : <rect key={index} x={element.x - 2} y={element.y - 2} width="5" height="5" fill={colorFillPolygon} stroke={colorСircuit} />
   // }
-  
+
 
   //РИСОВАНИЕ КРУЖКОВ
 
@@ -275,8 +288,8 @@ function trackingCoordinatesUp(e: React.MouseEvent) {
   ///!!!Если координаты грани совпадают, то перенести по новым данным, если нет - добавить точку
 
   function createFiguresKnot(element: ICoordinate, index: number) {
-      return <circle key={index} onMouseDown={trackingCoordinatesDown} cx={element.x} cy={element.y} style={{zIndex:1000}} r="20" fill={colorFillPolygon} stroke={colorСircuit} />        
-    }
+    return <circle key={index} onMouseDown={trackingCoordinatesDown} cx={element.x} cy={element.y} style={{ zIndex: 1000 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
+  }
   let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
 
   //СОХРАНЕНИЕ КООРДИНАТ
