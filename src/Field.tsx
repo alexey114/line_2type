@@ -73,12 +73,12 @@ function Field() {
 
   //ОТСЛЕЖИВАНИЕ ПЕРЕМЕЩЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
 
-  function trackingCoordinatesMove(index: number, e: any) {
+  function trackingCoordinatesMove(e: any) {
     let offset = e.target.getBoundingClientRect() //отслеживание положения поля  
 
     if (isDown) {
       let coordinate = [...coordinateToArray]
-      coordinate.splice(index, 1, { x: e.clientX - offset.left, y: e.clientY - offset.top })
+      coordinate.splice(0, 1, { x: e.clientX - offset.left, y: e.clientY - offset.top })
       setCoordinateArray(coordinate)
     }
 
@@ -261,7 +261,7 @@ function Field() {
   return (
 
     <div className='polygonFields' style={{ width: windowSize[0], height: windowSize[1] }}>
-      <svg className='fieldsSVG' onMouseUp={trackingCoordinatesUp} onMouseMove={(e) => { trackingCoordinatesMove(index, e) }} onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
+      <svg className='fieldsSVG' onMouseUp={trackingCoordinatesUp} onMouseMove={(e) => { trackingCoordinatesMove(e) }} onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
         {paintFiguresKnot}
         {/* <circle id="circle" onMouseDown={trackingCoordinatesDown} cx={newCoordinate.x} cy={newCoordinate.y} style={{zIndex:1000}} r="20" fill="black" stroke="black" /> */}
         {/* {coordinateLine} */}
