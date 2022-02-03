@@ -29,20 +29,18 @@ function Field() {
 
   // let textButtonCloseLinePath = "Соединить точки"    //Текст кнопки закрытия линии Path
 
-  let [newCoordinate, setNewCoordinate] = useState<ICoordinate[]>([{x:100, y:100}])           //Координаты по завершению переноса
-  let [downCoordinate, setDownCoordinate] = useState<ICoordinate[]>([])             //Координаты по нажатию на любое место поля
-
   let [windowSize, setWindowSize] = useState<number[]>([500, 500])                        //Отслеживание размера окна браузера
   let [coordinateToArray, setCoordinateArray] = useState<ICoordinate[]>([])  //ОСНОВНОЙ массив координат
-  let [circleArray, setCircleArray] = useState<JSX.Element[]>([])             //массив С УЗЛАМИ
+
   // let [buttonCloseLinePath, setButtonCloseLinePath] = useState(false)      //соединение PATH линий
   // let [selectFigure, setSelectFigure]  = useState('linePath')              //выбор по умолчанию для визуализации сложной линиия
   // let [selectKnot, setSelectKnot] = useState('circle')                     //выбор по умолчанию, для визуализации в узлах кружков
   let [buttonColor, setButtonColor] = useState(false)                       //переключение цвета контуров
   let [buttonFillColor, setButtonFillColor] = useState(false)               //переключение цвета заливки
 
-  let [down, setDown] = useState(false)                                     //отслеживание зажата ли кнопка
-  let [up, setUp] = useState(false)                                     //отслеживание зажата ли кнопка
+  let [isDown, setIsDown] = useState(false)                                     //отслеживание нажата ли кнопка на узле
+  let [isDownPolygon, setIsDownPolygon] = useState(false)                                     //отслеживание зажата ли кнопка на полигоне
+
 
   //Перетаскивание полигона
 
@@ -62,98 +60,46 @@ function Field() {
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
   function setCoordinateToArray(e: any) {
-    let offset = e.target.getBoundingClientRect() //отслеживание положения поля
-    let coordinate = [...coordinateToArray]
-    coordinate.push({ x: e.clientX - offset.left, y: e.clientY - offset.top })
-    setCoordinateArray(coordinate)
-    console.log("coordinateToArray из coordinate", coordinate)
+    if (!isDown && !isDownPolygon) {
+      let offset = e.target.getBoundingClientRect() //отслеживание положения поля
+      let coordinate = [...coordinateToArray]
+      coordinate.push({ x: e.clientX - offset.left, y: e.clientY - offset.top })
+      setCoordinateArray(coordinate)
+      console.log("coordinateToArray из coordinate", coordinate)
+    }
   }
 
   console.log("вне coordinateToArray", coordinateToArray)
 
-  //КООРДИНАТЫ ПОСЛЕ НАЖАТИЯ - не актуально (сложный расчёт)
-
-  function searchCoordinateDown(e: React.MouseEvent) {
-    // нужно создать функцию, которая будет отслеживать нажатия в любое место для сравнения в массиве потом
-    console.log("searchCoordinateDown", { x: e.clientX, y: e.clientY })
-    //test()
-    setDownCoordinate([{ x: e.clientX, y: e.clientY }])
-  }
-
   //ОТСЛЕЖИВАНИЕ ПЕРЕМЕЩЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
 
-  function trackingCoordinatesMove(e: any) {
-    let offset = e.target.getBoundingClientRect() //отслеживание положения поля
-    if (down) {
+  function trackingCoordinatesMove(index: number, e: any) {
+    let offset = e.target.getBoundingClientRect() //отслеживание положения поля  
 
-      setNewCoordinate([{ x: e.clientX - offset.left, y: e.clientY - offset.top }])
-      // console.log("element", rect.left)
-      // console.log("element", rect.top)
-      // console.log(e.clientX, e.clientY)
-      console.log("newCoordinate", newCoordinate)
-      console.log("SetnewCoordinate", setNewCoordinate)
-      // console.log("ИТОГ", e.clientX - rect.left)
-      // console.log("ИТОГ", e.clientY - rect.top)
+    if (isDown) {
+      let coordinate = [...coordinateToArray]
+      coordinate.splice(index, 1, { x: e.clientX - offset.left, y: e.clientY - offset.top })
+      setCoordinateArray(coordinate)
+    }
+
+    if (isDownPolygon) {
+      let newCoordinatePolygonX = e.clientX - coordinateToArray[coordinateToArray.length - 1].x
+      let newCoordinatePolygonY = e.clientY - coordinateToArray[coordinateToArray.length - 1].y
+
+      let newCoordinatePolygon = coordinateToArray.map(function (element: ICoordinate, index: number) {
+        let x = coordinateToArray[index].x + newCoordinatePolygonX
+        let y = coordinateToArray[index].y + newCoordinatePolygonY
+        return { x: x, y: y }
+      })
+      setCoordinateArray(newCoordinatePolygon)
     }
   }
-
-  //ПРОВЕРКА В МАССИВЕ ПОДХОДЯЩИХ КООРДИНАТ - не актуально
-
-  //функция CallBack для поиска в массиве X с допуском 20 (плюс\минус 10)
-
-  // function searchArrayX(element: { x: number, y: number }) {
-  //   if ((downCoordinate.x - 10) < element.x && element.x < (downCoordinate.x + 10)) {
-  //     console.log(element.x)
-  //     console.log("true X")
-  //     return true
-  //   } else {
-  //     console.log("false X")
-  //     return false
-  //   }
-  // }
-
-  //функция CallBack для поиска в массиве Y с допуском 20 (плюс\минус 10)
-
-  // function searchArrayY(element: { x: number, y: number }) {
-  //   if ((downCoordinate.y - 10) < element.y && element.y < (downCoordinate.y + 10)) {
-  //     console.log(element.y)
-  //     console.log("true Y")
-  //     return true
-  //   } else {
-  //     console.log("false Y")
-  //     return false
-  //   }
-  // }
-
-  //Поиск по значению и вывод индекса элемента
-
-  // function test() {
-
-  //если элемент есть, то выводится его номер, если нет -1
-
-  //   let indexX = coordinateToArray.findIndex(searchArrayX) //0
-  //   let indexY = coordinateToArray.findIndex(searchArrayY) //0
-
-  //   console.log("indexX", indexX)
-  //   console.log("indexY", indexY)
-
-  //проверка итога по наличию элемента и сравнение, если индексы идентичны, то перезаписать этот элемент
-
-  //   if (indexX >= 0 && indexY >= 0 && indexX === indexY) {
-  //     let coordinate = [...coordinateToArray]
-  //     console.log("newCoordinate", newCoordinate)
-  //     coordinate.splice(indexX, 1, newCoordinate)
-  //     setCoordinateArray(coordinate)
-  //   }
-  //   console.log(coordinateToArray)
-  //   console.log("findIndex")
-  // }
 
   //ОТСЛЕЖИВАНИЕ ОТПУСКАНИЯ КНОПКИ
 
   function trackingCoordinatesUp(e: React.MouseEvent) {
-    setDown(false)
-    setUp(true)
+    setIsDown(false)
+    setIsDownPolygon(false)
     console.log('Up')
   }
 
@@ -230,27 +176,8 @@ function Field() {
 
   //ПОЛИГОН ПРИ ПЕРЕТАСКИВАНИИ
 
-  function dndPolygon() {
-
-    let newCoordinatePolygonX = Math.abs(downCoordinate[0].x - coordinateToArray[coordinateToArray.length - 1].x)
-    let newCoordinatePolygonY = Math.abs(downCoordinate[0].y - coordinateToArray[coordinateToArray.length - 1].y)
-    console.log("newCoordinatePolygonX", newCoordinatePolygonX)
-    console.log("newCoordinatePolygonY", newCoordinatePolygonY)
-    console.log("downCoordinate.x", downCoordinate[0].x)
-    console.log("coordinateToArray[coordinateToArray.length-1].x", coordinateToArray[coordinateToArray.length - 1].x)
-    console.log("downCoordinate.y", downCoordinate[0].y)
-    console.log("coordinateToArray[coordinateToArray.length-1].y", coordinateToArray[coordinateToArray.length - 1].y)
-
-    function createNewPolygon(element: ICoordinate, index: number) {
-      let x = coordinateToArray[index].x - newCoordinatePolygonX
-      let y = coordinateToArray[index].y - newCoordinatePolygonY
-      return { x: x, y: y }
-    }
-
-    let newCoordinatePolygon = coordinateToArray.map(createNewPolygon)
-    setCoordinateArray(newCoordinatePolygon)
-    console.log("newCoordinatePolygon", newCoordinatePolygon)
-
+  function downPolygon() {
+    setIsDownPolygon(true)
   }
 
   //Отрисовка линии path
@@ -303,29 +230,21 @@ function Field() {
   //     : <rect key={index} x={element.x - 2} y={element.y - 2} width="5" height="5" fill={colorFillPolygon} stroke={colorСircuit} />
   // }
 
-    //РИСОВАНИЕ КРУЖКОВ
+  //РИСОВАНИЕ КРУЖКОВ
 
-    function createFiguresKnot(element: ICoordinate, index: number) {
-      return <circle key={index} onMouseDown={(e) => { trackingCoordinatesDown(index, e) }} cx={element.x} cy={element.y} style={{ zIndex: 1000 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
-    } 
-
-      let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
-
-
+  function createFiguresKnot(element: ICoordinate, index: number) {
+    return <circle key={index} onMouseDown={(e) => { downCircle(index, e) }} cx={element.x} cy={element.y} style={{ zIndex: 1000 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
+  }
+  let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
 
   //ОТСЛЕЖИВАНИЕ НАЖАТИЯ КНОПКИ
 
-  function trackingCoordinatesDown(index: number, e: React.MouseEvent) {
-
-    setDown(true)
-
-    //ИЗМЕНЕНИЕ КООРДИНАТ КРУЖКОВ
+  function downCircle(index: number, e: React.MouseEvent) {
     if (index >= 0) {
-      return paintFiguresKnot.splice(index, 1, <circle key={index} onMouseDown={(e) => { trackingCoordinatesDown(index, e) }} cx={newCoordinate[0].x} cy={newCoordinate[0].y} style={{ zIndex: 1000 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />)
+      setIsDown(true)
+      console.log('Down')
     }
   }
-
-
 
   //СОХРАНЕНИЕ КООРДИНАТ
   function saveCoordinate() {
@@ -342,11 +261,11 @@ function Field() {
   return (
 
     <div className='polygonFields' style={{ width: windowSize[0], height: windowSize[1] }}>
-      <svg className='fieldsSVG' onMouseUp={trackingCoordinatesUp} onMouseMove={trackingCoordinatesMove} onClick={setCoordinateToArray} onMouseDown={searchCoordinateDown} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
+      <svg className='fieldsSVG' onMouseUp={trackingCoordinatesUp} onMouseMove={(e) => { trackingCoordinatesMove(index, e) }} onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
         {paintFiguresKnot}
         {/* <circle id="circle" onMouseDown={trackingCoordinatesDown} cx={newCoordinate.x} cy={newCoordinate.y} style={{zIndex:1000}} r="20" fill="black" stroke="black" /> */}
         {/* {coordinateLine} */}
-        <polygon points={coordinatePolygon} onMouseDown={dndPolygon} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="10" />
+        <polygon points={coordinatePolygon} onMouseDown={downPolygon} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="10" />
         {/* <path id="line" d={coordinateLinePath} fill={colorFillPolygon} stroke={colorСircuit} /> */}
       </svg>
 
