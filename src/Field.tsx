@@ -41,7 +41,9 @@ function Field() {
   let [isDown, setIsDown] = useState(false)                                     //отслеживание нажата ли кнопка на узле
   let [isDownPolygon, setIsDownPolygon] = useState(false)                                     //отслеживание зажата ли кнопка на полигоне
 
-  let [circleNumber, setCircleNumber] = useState(0);
+  let [circleNumber, setCircleNumber] = useState(-1);
+  let [colorCircleSelection, setColorCircleSelection] = useState(false)
+  let [delCircleButton, setDelCircleButton] = useState(false)
 
   //ОТСЛЕЖИВАНИЕ ИЗМЕНЕНИЯ РАЗМЕРА ОКНА БРАУЗЕРА ДЛЯ ПОСЛЕДУЮЩЕЙ АДАПТАЦИИ SVG ПОЛЯ ПОД НЕГО
 
@@ -87,6 +89,12 @@ function Field() {
   //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРА
   function setColor() {
     setButtonColor((buttonColor) ? false : true)
+
+    function changeColor() {
+      colorСircuit = (buttonColor) ? "red" : "black"
+      textButtonColor = (buttonColor) ? "Красный вкл" : "Красный выкл"
+    }
+    changeColor()
   }
 
   //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ
@@ -110,10 +118,16 @@ function Field() {
   }
   changeFillPolygon()
 
+  //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ КРУГА ПРИ ВЫДЕЛЕНИИ
+
+  function circleSelection() {
+    setColorCircleSelection((colorCircleSelection) ? false : true)
+  }
+
   //РИСОВАНИЕ КРУЖКОВ
 
   function createFiguresKnot(element: ICoordinate, index: number) {
-    return <circle key={index} onMouseDown={(e) => { downCircle(index, e) }} cx={element.x} cy={element.y} style={{ zIndex: 1000 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
+    return <circle className="activeCircle" key={index} onMouseDown={(e) => { downCircle(index, e) }} onClick={circleSelection} cx={element.x} cy={element.y} style={{ zIndex: 1 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
   }
   let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
 
@@ -125,9 +139,37 @@ function Field() {
       setCircleNumber(index)
       console.log('Down')
     }
-    console.log("circleNumber", circleNumber)
-    return circleNumber
   }
+
+  console.log(paintFiguresKnot)
+
+  function changeColorCircleSelect() {
+    if (colorCircleSelection && !delCircleButton) {
+      paintFiguresKnot.splice(circleNumber, 1, (<circle className="activeCircle" key={circleNumber} onClick={circleSelection} cx={coordinateToArray[circleNumber].x} cy={coordinateToArray[circleNumber].y} style={{ zIndex: 1 }} r="20" fill="green" stroke="yellow" />))
+    }
+  }
+  changeColorCircleSelect()
+
+  //УДАЛЕНИЕ УЗЛА
+
+  function delCircleBtn() {
+    setDelCircleButton((delCircleButton) ? false : true)
+  }
+
+  function delCircle() {
+    if (delCircleButton) {
+      let coordinate = [...coordinateToArray]
+      coordinate.splice(circleNumber,1)
+      setCoordinateArray(coordinate)
+      console.log(coordinateToArray)
+      console.log("circleNumber", circleNumber)
+      setDelCircleButton(false)
+    }
+
+
+  }
+
+  delCircle()
 
   //ОТСЛЕЖИВАНИЕ ПЕРЕМЕЩЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
 
@@ -303,6 +345,9 @@ function Field() {
         <button className="buttonPolygon" onClick={() => setColorFill()}> {textButtonFillPolygon} </button>
         <br />
 
+        <button className="deleteCircle" onClick={() => delCircleBtn()}> Удалить узел </button>
+        <br />
+
         <button className="save" onClick={() => saveCoordinate()}> Сохранить </button>
         <button className="save" onClick={() => loadCoordinate()}> Загрузить </button>
         <button className="save" onClick={() => buttonRemove()}> Очистить </button>
@@ -315,8 +360,8 @@ function Field() {
 export default Field
 
 //Задачи:
-//Когда полигон залит, переносим за заливку весь полигон
-//За грань, где не было точки, делаем новую точку
-//Если точка была, то меняем форму полигона перетаскивая точку
-//Активная точка при выделении
+//Когда полигон залит, переносим за заливку весь полигон - done
+//Если точка была, то меняем форму полигона перетаскивая точку - done
+//Активная точка при выделении - done
 //Удаление через кнопку DEL \ кнопка на меню
+//За грань, где не было точки, делаем новую точку
