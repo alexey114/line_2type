@@ -25,7 +25,7 @@ function Field() {
   let textButtonColor = "Красный выкл"                //Текст кнопки переключения цветов
 
   let colorFillPolygon = "none"                       //Цвет заливки
-  let textButtonFillPolygon = "Заливка полигона выкл" //Текст кнопки переключения заливки 
+  let textButtonFillPolygon = "Заливка полигона выкл" //Текст кнопки переключения заливки
 
   // let textButtonCloseLinePath = "Соединить точки"    //Текст кнопки закрытия линии Path
 
@@ -41,8 +41,7 @@ function Field() {
   let [isDown, setIsDown] = useState(false)                                     //отслеживание нажата ли кнопка на узле
   let [isDownPolygon, setIsDownPolygon] = useState(false)                                     //отслеживание зажата ли кнопка на полигоне
 
-
-  //Перетаскивание полигона
+  let [circleNumber, setCircleNumber] = useState(0);
 
   //ОТСЛЕЖИВАНИЕ ИЗМЕНЕНИЯ РАЗМЕРА ОКНА БРАУЗЕРА ДЛЯ ПОСЛЕДУЮЩЕЙ АДАПТАЦИИ SVG ПОЛЯ ПОД НЕГО
 
@@ -57,10 +56,13 @@ function Field() {
 
   }, [])
 
+
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
   function setCoordinateToArray(e: any) {
-    if (!isDown && !isDownPolygon) {
+    if (isDownPolygon === true || isDown === true) {
+      console.log("нажато")
+    } else {
       let offset = e.target.getBoundingClientRect() //отслеживание положения поля
       let coordinate = [...coordinateToArray]
       coordinate.push({ x: e.clientX - offset.left, y: e.clientY - offset.top })
@@ -71,53 +73,16 @@ function Field() {
 
   console.log("вне coordinateToArray", coordinateToArray)
 
-  //ОТСЛЕЖИВАНИЕ ПЕРЕМЕЩЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
-
-  function trackingCoordinatesMove(e: any) {
-    let offset = e.target.getBoundingClientRect() //отслеживание положения поля  
-
-    if (isDown) {
-      let coordinate = [...coordinateToArray]
-      coordinate.splice(0, 1, { x: e.clientX - offset.left, y: e.clientY - offset.top })
-      setCoordinateArray(coordinate)
-    }
-
-    if (isDownPolygon) {
-      let newCoordinatePolygonX = e.clientX - coordinateToArray[coordinateToArray.length - 1].x
-      let newCoordinatePolygonY = e.clientY - coordinateToArray[coordinateToArray.length - 1].y
-
-      let newCoordinatePolygon = coordinateToArray.map(function (element: ICoordinate, index: number) {
-        let x = coordinateToArray[index].x + newCoordinatePolygonX
-        let y = coordinateToArray[index].y + newCoordinatePolygonY
-        return { x: x, y: y }
-      })
-      setCoordinateArray(newCoordinatePolygon)
-    }
+  //РИСОВАНИЕ ПОЛИГОНОВ
+  function createFigures() {
+    coordinatePolygon += coordinateToArray.map(createPolygon).join(" ")
   }
+  createFigures()
 
-  //ОТСЛЕЖИВАНИЕ ОТПУСКАНИЯ КНОПКИ
-
-  function trackingCoordinatesUp(e: React.MouseEvent) {
-    setIsDown(false)
-    setIsDownPolygon(false)
-    console.log('Up')
+  //Polygon
+  function createPolygon(element: ICoordinate) {
+    return (element.x + " " + element.y)
   }
-
-  //СОЕДИНЕНИЕ ЛИНИЙ
-  // function setCloseLinePath() {
-  //   setButtonCloseLinePath((buttonCloseLinePath) ? false : true)
-  // }
-
-  //ВЫБОР ФИГУРЫ ЧЕРЕЗ SELECT
-  // function handleChangeFigure(event: React.ChangeEvent<HTMLSelectElement>) {
-  //   setSelectFigure( event.target.value )
-  // }
-
-  //ВЫБОР УЗЛА ЧЕРЕЗ SELECT
-  // function handleChangeKnot(event: React.ChangeEvent<HTMLSelectElement>) {
-  //   setSelectKnot( event.target.value )
-  //   console.log(event.target.value)
-  // }
 
   //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРА
   function setColor() {
@@ -127,16 +92,6 @@ function Field() {
   //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ
   function setColorFill() {
     setButtonFillColor((buttonFillColor) ? false : true)
-  }
-
-  //ЗАГРУЗКА КООРДИНАТ ИЗ LOCAL STORAGE
-  function loadCoordinate() {
-    let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!)
-    if (getCoordinateArray === null) {
-      alert("Local Storage пуст")
-    } else {
-      setCoordinateArray(getCoordinateArray)
-    }
   }
 
   //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРОВ И ТЕКСТА КНОПКИ
@@ -155,6 +110,103 @@ function Field() {
   }
   changeFillPolygon()
 
+  //РИСОВАНИЕ КРУЖКОВ
+
+  function createFiguresKnot(element: ICoordinate, index: number) {
+    return <circle key={index} onMouseDown={(e) => { downCircle(index, e) }} cx={element.x} cy={element.y} style={{ zIndex: 1000 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
+  }
+  let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
+
+  //ОТСЛЕЖИВАНИЕ НАЖАТИЯ НА КРУГЕ
+
+  function downCircle(index: number, e: React.MouseEvent) {
+    if (index >= 0) {
+      setIsDown(true)
+      setCircleNumber(index)
+      console.log('Down')
+    }
+    console.log("circleNumber", circleNumber)
+    return circleNumber
+  }
+
+  //ОТСЛЕЖИВАНИЕ ПЕРЕМЕЩЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
+
+  function trackingCoordinatesMove(circleNumber: number, e: any) {
+    let offset = e.target.getBoundingClientRect() //отслеживание положения поля
+
+    if (isDown) {
+      //Перетаскивание КРУГА
+      let coordinate = [...coordinateToArray]
+      coordinate.splice(circleNumber, 1, { x: e.clientX - offset.left, y: e.clientY - offset.top })
+      setCoordinateArray(coordinate)
+    } else if (isDownPolygon) {
+      //Перетаскивание ПОЛИГОНА
+      let newCoordinatePolygonX = e.clientX - coordinateToArray[coordinateToArray.length - 1].x
+      let newCoordinatePolygonY = e.clientY - coordinateToArray[coordinateToArray.length - 1].y
+
+      let newCoordinatePolygon = coordinateToArray.map(function (element: ICoordinate, index: number) {
+        let x = coordinateToArray[index].x + newCoordinatePolygonX
+        let y = coordinateToArray[index].y + newCoordinatePolygonY
+        return { x: x, y: y }
+      })
+      setCoordinateArray(newCoordinatePolygon)
+    }
+  }
+
+  //ПОЛИГОН ПРИ ПЕРЕТАСКИВАНИИ
+  function downPolygon() {
+    setIsDownPolygon(true)
+    console.log('DownPolygon')
+  }
+
+  //ОТСЛЕЖИВАНИЕ ОТПУСКАНИЯ КНОПКИ
+  function trackingCoordinatesUp(e: React.MouseEvent) {
+    setIsDown(false)
+    setIsDownPolygon(false)
+    console.log('Up')
+  }
+
+  //СОХРАНЕНИЕ КООРДИНАТ
+  function saveCoordinate() {
+    if (coordinateToArray.length > 0) {
+      localStorage.setItem("CoordinateArray", JSON.stringify(coordinateToArray))
+      alert('Coxpaнено')
+    } else {
+      alert('нарисуйте минимум одну фигуру')
+    }
+  }
+
+  //ЗАГРУЗКА КООРДИНАТ ИЗ LOCAL STORAGE
+  function loadCoordinate() {
+    let getCoordinateArray = JSON.parse(localStorage.getItem("CoordinateArray")!)
+    if (getCoordinateArray === null) {
+      alert("Local Storage пуст")
+    } else {
+      setCoordinateArray(getCoordinateArray)
+    }
+  }
+
+  //Очистка SVG поля для рисования
+  function buttonRemove() {
+    window.location.reload()
+  }
+
+  //СОЕДИНЕНИЕ ЛИНИЙ
+  // function setCloseLinePath() {
+  //   setButtonCloseLinePath((buttonCloseLinePath) ? false : true)
+  // }
+
+  //ВЫБОР ФИГУРЫ ЧЕРЕЗ SELECT
+  // function handleChangeFigure(event: React.ChangeEvent<HTMLSelectElement>) {
+  //   setSelectFigure( event.target.value )
+  // }
+
+  //ВЫБОР УЗЛА ЧЕРЕЗ SELECT
+  // function handleChangeKnot(event: React.ChangeEvent<HTMLSelectElement>) {
+  //   setSelectKnot( event.target.value )
+  //   console.log(event.target.value)
+  // }
+
   // function changeCloseLinePath(){
   //   if(selectFigure === 'linePath'){
   //     if (coordinateToArray.length > 2) {
@@ -163,22 +215,6 @@ function Field() {
   //   }
   // }
   // changeCloseLinePath()
-
-  //Очистка SVG поля для рисования
-  function buttonRemove() {
-    window.location.reload()
-  }
-
-  //Polygon
-  function createPolygon(element: ICoordinate) {
-    return (element.x + " " + element.y)
-  }
-
-  //ПОЛИГОН ПРИ ПЕРЕТАСКИВАНИИ
-
-  function downPolygon() {
-    setIsDownPolygon(true)
-  }
 
   //Отрисовка линии path
   // function createLinePath(element: ICoordinate, index: number) {
@@ -216,12 +252,6 @@ function Field() {
 
   // createFigures()
 
-  //РИСОВАНИЕ ПОЛИГОНОВ
-  function createFigures() {
-    coordinatePolygon += coordinateToArray.map(createPolygon).join(" ")
-  }
-  createFigures()
-
   //Рисование кружков или квадратов в узлах
 
   // function createFiguresKnot(element: ICoordinate, index: number) {
@@ -230,38 +260,12 @@ function Field() {
   //     : <rect key={index} x={element.x - 2} y={element.y - 2} width="5" height="5" fill={colorFillPolygon} stroke={colorСircuit} />
   // }
 
-  //РИСОВАНИЕ КРУЖКОВ
-
-  function createFiguresKnot(element: ICoordinate, index: number) {
-    return <circle key={index} onMouseDown={(e) => { downCircle(index, e) }} cx={element.x} cy={element.y} style={{ zIndex: 1000 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
-  }
-  let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
-
-  //ОТСЛЕЖИВАНИЕ НАЖАТИЯ КНОПКИ
-
-  function downCircle(index: number, e: React.MouseEvent) {
-    if (index >= 0) {
-      setIsDown(true)
-      console.log('Down')
-    }
-  }
-
-  //СОХРАНЕНИЕ КООРДИНАТ
-  function saveCoordinate() {
-    if (coordinateToArray.length > 0) {
-      localStorage.setItem("CoordinateArray", JSON.stringify(coordinateToArray))
-      alert('Coxpaнено')
-    } else {
-      alert('нарисуйте минимум одну фигуру')
-    }
-  }
-
   console.log("finish")
 
   return (
 
     <div className='polygonFields' style={{ width: windowSize[0], height: windowSize[1] }}>
-      <svg className='fieldsSVG' onMouseUp={trackingCoordinatesUp} onMouseMove={(e) => { trackingCoordinatesMove(e) }} onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
+      <svg className='fieldsSVG' onMouseUp={trackingCoordinatesUp} onMouseMove={(e) => { trackingCoordinatesMove(circleNumber, e) }} onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
         {paintFiguresKnot}
         {/* <circle id="circle" onMouseDown={trackingCoordinatesDown} cx={newCoordinate.x} cy={newCoordinate.y} style={{zIndex:1000}} r="20" fill="black" stroke="black" /> */}
         {/* {coordinateLine} */}
@@ -312,5 +316,5 @@ export default Field
 //Когда полигон залит, переносим за заливку весь полигон
 //За грань, где не было точки, делаем новую точку
 //Если точка была, то меняем форму полигона перетаскивая точку
-// Активная точка при выделении
+//Активная точка при выделении
 //Удаление через кнопку DEL \ кнопка на меню
