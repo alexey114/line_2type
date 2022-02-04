@@ -137,7 +137,7 @@ function Field() {
     if (isDown) {
       //Перетаскивание КРУГА
       let coordinate = [...coordinateToArray]
-      coordinate.splice(circleNumber, 1, { x: e.clientX - offset.left, y: e.clientY - offset.top })
+      coordinate.splice(circleNumber, 1, { x: e.clientX, y: e.clientY })
       setCoordinateArray(coordinate)
     } else if (isDownPolygon) {
       //Перетаскивание ПОЛИГОНА
@@ -161,8 +161,10 @@ function Field() {
 
   //ОТСЛЕЖИВАНИЕ ОТПУСКАНИЯ КНОПКИ
   function trackingCoordinatesUp(e: React.MouseEvent) {
-    setIsDown(false)
-    setIsDownPolygon(false)
+    setTimeout(() => {
+      setIsDown(false)
+      setIsDownPolygon(false)
+    }, 100)
     console.log('Up')
   }
 
