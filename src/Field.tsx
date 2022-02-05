@@ -49,7 +49,7 @@ function Field() {
 
   useEffect(() => {
     function changeWindow() {
-      setWindowSize([window.innerWidth - 50, window.innerHeight - 100])
+      setWindowSize([window.innerWidth - 50, window.innerHeight - 150])
       console.log("window", window.innerWidth, window.innerHeight)
     }
     window.addEventListener("resize", changeWindow);
@@ -127,7 +127,7 @@ function Field() {
   //РИСОВАНИЕ КРУЖКОВ
 
   function createFiguresKnot(element: ICoordinate, index: number) {
-    return <circle className="activeCircle" key={index} onMouseDown={(e) => { downCircle(index, e) }} onClick={circleSelection} cx={element.x} cy={element.y} style={{ zIndex: 1 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
+    return <circle key={index} onMouseDown={(e) => { downCircle(index, e) }} onClick={circleSelection} cx={element.x} cy={element.y} style={{ zIndex: 1 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
   }
   let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
 
@@ -145,7 +145,7 @@ function Field() {
 
   function changeColorCircleSelect() {
     if (colorCircleSelection && !delCircleButton) {
-      paintFiguresKnot.splice(circleNumber, 1, (<circle className="activeCircle" key={circleNumber} onClick={circleSelection} cx={coordinateToArray[circleNumber].x} cy={coordinateToArray[circleNumber].y} style={{ zIndex: 1 }} r="20" fill="green" stroke="yellow" />))
+      paintFiguresKnot.splice(circleNumber, 1, (<circle key={circleNumber} onClick={circleSelection} cx={coordinateToArray[circleNumber].x} cy={coordinateToArray[circleNumber].y} style={{ zIndex: 1 }} r="20" fill="green" stroke="yellow" />))
     }
   }
   changeColorCircleSelect()
@@ -164,9 +164,8 @@ function Field() {
       console.log(coordinateToArray)
       console.log("circleNumber", circleNumber)
       setDelCircleButton(false)
+      setColorCircleSelection(false)
     }
-
-
   }
 
   delCircle()
@@ -363,5 +362,5 @@ export default Field
 //Когда полигон залит, переносим за заливку весь полигон - done
 //Если точка была, то меняем форму полигона перетаскивая точку - done
 //Активная точка при выделении - done
-//Удаление через кнопку DEL \ кнопка на меню
+//Удаление через кнопку DEL \ кнопка на меню - 
 //За грань, где не было точки, делаем новую точку
