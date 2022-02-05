@@ -44,6 +44,7 @@ function Field() {
   let [circleNumber, setCircleNumber] = useState(-1);
   let [colorCircleSelection, setColorCircleSelection] = useState(false)
   let [delCircleButton, setDelCircleButton] = useState(false)
+  let [delCircleKey, setDelCircleKey] = useState(false)
 
   //ОТСЛЕЖИВАНИЕ ИЗМЕНЕНИЯ РАЗМЕРА ОКНА БРАУЗЕРА ДЛЯ ПОСЛЕДУЮЩЕЙ АДАПТАЦИИ SVG ПОЛЯ ПОД НЕГО
 
@@ -57,7 +58,6 @@ function Field() {
     return () => window.removeEventListener("resize", changeWindow);
 
   }, [])
-
 
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
@@ -127,7 +127,7 @@ function Field() {
   //РИСОВАНИЕ КРУЖКОВ
 
   function createFiguresKnot(element: ICoordinate, index: number) {
-    return <circle key={index} onMouseDown={(e) => { downCircle(index, e) }} onClick={circleSelection} cx={element.x} cy={element.y} style={{ zIndex: 1 }} r="20" fill={colorFillPolygon} stroke={colorСircuit} />
+    return <circle key={index} onMouseDown={(e) => { downCircle(index, e) }} onClick={circleSelection} cx={element.x} cy={element.y} style={{ zIndex: 1 }} r="20" fill="blue" stroke={colorСircuit} />
   }
   let paintFiguresKnot = coordinateToArray.map(createFiguresKnot)
 
@@ -152,12 +152,19 @@ function Field() {
 
   //УДАЛЕНИЕ УЗЛА
 
+  document.onkeydown = function(e){
+    if(e.code === "Delete"){
+      console.log("DELcIRCLEkEY", delCircleKey)
+      setDelCircleKey((delCircleKey) ? false : true)
+    }
+  }
+
   function delCircleBtn() {
-    setDelCircleButton((delCircleButton) ? false : true)
+        setDelCircleButton((delCircleButton) ? false : true)
   }
 
   function delCircle() {
-    if (delCircleButton) {
+    if (delCircleButton || delCircleKey) {
       let coordinate = [...coordinateToArray]
       coordinate.splice(circleNumber,1)
       setCoordinateArray(coordinate)
@@ -165,6 +172,7 @@ function Field() {
       console.log("circleNumber", circleNumber)
       setDelCircleButton(false)
       setColorCircleSelection(false)
+      setDelCircleKey(false)
     }
   }
 
@@ -362,5 +370,5 @@ export default Field
 //Когда полигон залит, переносим за заливку весь полигон - done
 //Если точка была, то меняем форму полигона перетаскивая точку - done
 //Активная точка при выделении - done
-//Удаление через кнопку DEL \ кнопка на меню - 
+//Удаление через кнопку DEL \ кнопка на меню -
 //За грань, где не было точки, делаем новую точку
