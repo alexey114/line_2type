@@ -10,6 +10,7 @@ import './Button.css'
 //   buttonFillColor: boolean,
 //   buttonCloseLinePath: boolean,
 // }
+
 interface ICoordinate {
   x: number,
   y: number
@@ -17,19 +18,19 @@ interface ICoordinate {
 
 function Field() {
 
-  // let coordinateLine: JSX.Element[] = []             //Массив с координатами обычных линий для отрисовки
+  let coordinateLine: JSX.Element[] = []             //Массив с координатами обычных линий для отрисовки
   let coordinatePolygon: string = ""                  //Строка с координатами полигона
   // let coordinateLinePath: string = ""                //Строка с координатами линии Path
 
   let colorСircuit = "black"                          //Цвет контуров
-  let textButtonColor = "Красный выкл"                //Текст кнопки переключения цветов
+  // let textButtonColor = "Красный выкл"                //Текст кнопки переключения цветов
 
   let colorFillPolygon = "none"                       //Цвет заливки
   let textButtonFillPolygon = "Заливка полигона выкл" //Текст кнопки переключения заливки
 
   // let textButtonCloseLinePath = "Соединить точки"    //Текст кнопки закрытия линии Path
 
-  let [windowSize, setWindowSize] = useState<number[]>([500, 500])                        //Отслеживание размера окна браузера
+  let [windowSize, setWindowSize] = useState<number[]>([500, 500])           //Отслеживание размера окна браузера
   let [coordinateToArray, setCoordinateArray] = useState<ICoordinate[]>([])  //ОСНОВНОЙ массив координат
 
   // let [buttonCloseLinePath, setButtonCloseLinePath] = useState(false)      //соединение PATH линий
@@ -38,13 +39,17 @@ function Field() {
   let [buttonColor, setButtonColor] = useState(false)                       //переключение цвета контуров
   let [buttonFillColor, setButtonFillColor] = useState(false)               //переключение цвета заливки
 
-  let [isDown, setIsDown] = useState(false)                                     //отслеживание нажата ли кнопка на узле
-  let [isDownPolygon, setIsDownPolygon] = useState(false)                                     //отслеживание зажата ли кнопка на полигоне
+  let [isDown, setIsDown] = useState(false)                                 //отслеживание нажата ли кнопка на узле
+  let [isDownPolygon, setIsDownPolygon] = useState(false)                   //отслеживание зажата ли кнопка на полигоне
 
-  let [circleNumber, setCircleNumber] = useState(-1);
-  let [colorCircleSelection, setColorCircleSelection] = useState(false)
-  let [delCircleButton, setDelCircleButton] = useState(false)
-  let [delCircleKey, setDelCircleKey] = useState(false)
+  let [circleNumber, setCircleNumber] = useState(-1);                       //номер выбранного узла
+  let [colorCircleSelection, setColorCircleSelection] = useState(false)     //выделение узла для удаления
+  let [delCircleButton, setDelCircleButton] = useState(false)               //кнопка удаления узла
+  let [delCircleKey, setDelCircleKey] = useState(false)                     //удаления узла по кнопке Delete
+
+  let [isDownLine, setIsDownLine] = useState(false)                       //Попадание на линию ипервое движение (добавление элемента)
+  let [isDownLineOne, setIsDownLineOne] = useState(false)                 //Попадание на линию ипервое движение (замена элемента)
+  let [isLineNumber, setLineNumber] = useState(-1);                       //Номер выбранной линии
 
   //ОТСЛЕЖИВАНИЕ ИЗМЕНЕНИЯ РАЗМЕРА ОКНА БРАУЗЕРА ДЛЯ ПОСЛЕДУЮЩЕЙ АДАПТАЦИИ SVG ПОЛЯ ПОД НЕГО
 
@@ -62,22 +67,28 @@ function Field() {
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
   function setCoordinateToArray(e: any) {
+
     if (isDownPolygon === true || isDown === true) {
       console.log("нажато")
     } else {
       let offset = e.target.getBoundingClientRect() //отслеживание положения поля
-      let coordinate = [...coordinateToArray]
-      coordinate.push({ x: e.clientX - offset.left, y: e.clientY - offset.top })
-      setCoordinateArray(coordinate)
-      console.log("coordinateToArray из coordinate", coordinate)
+      if (!isDownLine) {
+        let coordinate = [...coordinateToArray]
+        coordinate.push({ x: e.clientX - offset.left, y: e.clientY - offset.top })
+        setCoordinateArray(coordinate)
+      }
     }
   }
-
-  console.log("вне coordinateToArray", coordinateToArray)
 
   //РИСОВАНИЕ ПОЛИГОНОВ
   function createFigures() {
     coordinatePolygon += coordinateToArray.map(createPolygon).join(" ")
+
+    for (let index = 1; index < coordinateToArray.length; index++) {
+      coordinateLine.push(
+        <line key={index} onMouseDown={(e) => { downLine(index, e) }} x1={coordinateToArray[index - 1].x} x2={coordinateToArray[index].x} y1={coordinateToArray[index - 1].y} y2={coordinateToArray[index].y} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="5" />
+      )
+    }
   }
   createFigures()
 
@@ -87,28 +98,32 @@ function Field() {
   }
 
   //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРА
-  function setColor() {
-    setButtonColor((buttonColor) ? false : true)
+  // function setColor() {
+  //   setButtonColor((buttonColor) ? false : true)
 
-    function changeColor() {
-      colorСircuit = (buttonColor) ? "red" : "black"
-      textButtonColor = (buttonColor) ? "Красный вкл" : "Красный выкл"
-    }
-    changeColor()
-  }
+  //   function changeColor() {
+  //     colorСircuit = (buttonColor) ? "red" : "black"
+  //     textButtonColor = (buttonColor) ? "Красный вкл" : "Красный выкл"
+  //   }
+  //   changeColor()
+  // }
 
   //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ
   function setColorFill() {
-    setButtonFillColor((buttonFillColor) ? false : true)
+    if(coordinateToArray.length>2){
+      setButtonFillColor((buttonFillColor) ? false : true)
+    } else {
+      alert("Нарисуйте минимум две линии")
+    }
   }
 
   //ИЗМЕНЕНИЕ ЦВЕТА КОНТУРОВ И ТЕКСТА КНОПКИ
 
-  function changeColor() {
-    colorСircuit = (buttonColor) ? "red" : "black"
-    textButtonColor = (buttonColor) ? "Красный вкл" : "Красный выкл"
-  }
-  changeColor()
+  // function changeColor() {
+  //   colorСircuit = (buttonColor) ? "red" : "black"
+  //   textButtonColor = (buttonColor) ? "Красный вкл" : "Красный выкл"
+  // }
+  // changeColor()
 
   //ИЗМЕНЕНИЕ ЦВЕТА ЗАЛИВКИ И ТЕКСТА КНОПКИ
 
@@ -141,41 +156,46 @@ function Field() {
     }
   }
 
+  //ОТСЛЕЖИВАНИЕ НАЖАТИЕ НА ЛИНИИ
+
+  function downLine(index: number, e: React.MouseEvent) {
+    setIsDownLine(true)
+    setLineNumber(index)
+  }
+
   console.log(paintFiguresKnot)
 
   function changeColorCircleSelect() {
     if (colorCircleSelection && !delCircleButton) {
-      paintFiguresKnot.splice(circleNumber, 1, (<circle key={circleNumber} onClick={circleSelection} cx={coordinateToArray[circleNumber].x} cy={coordinateToArray[circleNumber].y} style={{ zIndex: 1 }} r="20" fill="green" stroke="yellow" />))
+      paintFiguresKnot[circleNumber] = (<circle key={circleNumber} onClick={circleSelection} cx={coordinateToArray[circleNumber].x} cy={coordinateToArray[circleNumber].y} style={{ zIndex: 1 }} r="20" fill="green" stroke="yellow" />)
     }
   }
   changeColorCircleSelect()
 
   //УДАЛЕНИЕ УЗЛА
 
-  document.onkeydown = function(e){
-    if(e.code === "Delete"){
-      console.log("DELcIRCLEkEY", delCircleKey)
+  document.onkeydown = function (e) {
+    if (e.code === "Delete") {
       setDelCircleKey((delCircleKey) ? false : true)
     }
   }
 
   function delCircleBtn() {
-        setDelCircleButton((delCircleButton) ? false : true)
+    setDelCircleButton((delCircleButton) ? false : true)
   }
 
   function delCircle() {
+
     if (delCircleButton || delCircleKey) {
       let coordinate = [...coordinateToArray]
-      coordinate.splice(circleNumber,1)
+      coordinate.splice(circleNumber, 1)
       setCoordinateArray(coordinate)
-      console.log(coordinateToArray)
-      console.log("circleNumber", circleNumber)
+
       setDelCircleButton(false)
       setColorCircleSelection(false)
       setDelCircleKey(false)
     }
   }
-
   delCircle()
 
   //ОТСЛЕЖИВАНИЕ ПЕРЕМЕЩЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
@@ -186,9 +206,9 @@ function Field() {
     if (isDown) {
       //Перетаскивание КРУГА
       let coordinate = [...coordinateToArray]
-      coordinate.splice(circleNumber, 1, { x: e.clientX, y: e.clientY })
+      coordinate[circleNumber] = { x: e.clientX, y: e.clientY }
       setCoordinateArray(coordinate)
-    } else if (isDownPolygon) {
+    } else if (isDownPolygon && colorFillPolygon !== "none") {
       //Перетаскивание ПОЛИГОНА
       let newCoordinatePolygonX = e.clientX - coordinateToArray[coordinateToArray.length - 1].x
       let newCoordinatePolygonY = e.clientY - coordinateToArray[coordinateToArray.length - 1].y
@@ -199,6 +219,17 @@ function Field() {
         return { x: x, y: y }
       })
       setCoordinateArray(newCoordinatePolygon)
+    } else if (isDownLine) {
+      if (isDownLine && !isDownLineOne) {
+        let coordinate = [...coordinateToArray]
+        coordinate.splice(isLineNumber, 0, { x: e.clientX, y: e.clientY })
+        setCoordinateArray(coordinate)
+        setIsDownLineOne(true)
+      } else if (isDownLine && isDownLineOne) {
+        let coordinate = [...coordinateToArray]
+        coordinate.splice(isLineNumber, 1, { x: e.clientX, y: e.clientY })
+        setCoordinateArray(coordinate)
+      }
     }
   }
 
@@ -213,6 +244,8 @@ function Field() {
     setTimeout(() => {
       setIsDown(false)
       setIsDownPolygon(false)
+      setIsDownLine(false)
+      setIsDownLineOne(false)
     }, 100)
     console.log('Up')
   }
@@ -319,8 +352,8 @@ function Field() {
       <svg className='fieldsSVG' onMouseUp={trackingCoordinatesUp} onMouseMove={(e) => { trackingCoordinatesMove(circleNumber, e) }} onClick={setCoordinateToArray} width={windowSize[0]} height={windowSize[1]} xmlns="http://www.w3.org/2000/svg">
         {paintFiguresKnot}
         {/* <circle id="circle" onMouseDown={trackingCoordinatesDown} cx={newCoordinate.x} cy={newCoordinate.y} style={{zIndex:1000}} r="20" fill="black" stroke="black" /> */}
-        {/* {coordinateLine} */}
-        <polygon points={coordinatePolygon} onMouseDown={downPolygon} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="10" />
+        {coordinateLine}
+        <polygon points={coordinatePolygon} onMouseDown={downPolygon} stroke={colorСircuit} fill={colorFillPolygon} strokeWidth="0" />
         {/* <path id="line" d={coordinateLinePath} fill={colorFillPolygon} stroke={colorСircuit} /> */}
       </svg>
 
@@ -348,7 +381,7 @@ function Field() {
         {/* <button className="buttonZ" onClick={() => setCloseLinePath()}>{textButtonCloseLinePath}</button> */}
         <br />
 
-        <button className="colorRed" onClick={() => setColor()}>{textButtonColor} </button>
+        {/* <button className="colorRed" onClick={() => setColor()}>{textButtonColor} </button> */}
         <button className="buttonPolygon" onClick={() => setColorFill()}> {textButtonFillPolygon} </button>
         <br />
 
@@ -370,5 +403,5 @@ export default Field
 //Когда полигон залит, переносим за заливку весь полигон - done
 //Если точка была, то меняем форму полигона перетаскивая точку - done
 //Активная точка при выделении - done
-//Удаление через кнопку DEL \ кнопка на меню -
+//Удаление через кнопку DEL \ кнопка на меню - done
 //За грань, где не было точки, делаем новую точку
