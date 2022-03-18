@@ -18,17 +18,17 @@ interface ICoordinate {
 
 function Field() {
 
-  let coordinateLine: JSX.Element[] = []             //Массив с координатами обычных линий для отрисовки
-  let coordinatePolygon: string = ""                  //Строка с координатами полигона
-  // let coordinateLinePath: string = ""                //Строка с координатами линии Path
+  let coordinateLine: JSX.Element[] = []                                   //Массив с координатами обычных линий для отрисовки
+  let coordinatePolygon: string = ""                                         //Строка с координатами полигона
+  // let coordinateLinePath: string = ""                                       //Строка с координатами линии Path
 
-  let colorСircuit = "black"                          //Цвет контуров
-  // let textButtonColor = "Красный выкл"                //Текст кнопки переключения цветов
+  let colorСircuit = "black"                                                 //Цвет контуров
+  // let textButtonColor = "Красный выкл"                                      //Текст кнопки переключения цветов
 
-  let colorFillPolygon = "none"                       //Цвет заливки
-  let textButtonFillPolygon = "Заливка полигона выкл" //Текст кнопки переключения заливки
+  let colorFillPolygon = "none"                                              //Цвет заливки
+  let textButtonFillPolygon = "Заливка полигона выкл"                        //Текст кнопки переключения заливки
 
-  // let textButtonCloseLinePath = "Соединить точки"    //Текст кнопки закрытия линии Path
+  // let textButtonCloseLinePath = "Соединить точки"                          //Текст кнопки закрытия линии Path
 
   let [windowSize, setWindowSize] = useState<number[]>([500, 500])           //Отслеживание размера окна браузера
   let [coordinateToArray, setCoordinateArray] = useState<ICoordinate[]>([])  //ОСНОВНОЙ массив координат
@@ -36,7 +36,7 @@ function Field() {
   // let [buttonCloseLinePath, setButtonCloseLinePath] = useState(false)      //соединение PATH линий
   // let [selectFigure, setSelectFigure]  = useState('linePath')              //выбор по умолчанию для визуализации сложной линиия
   // let [selectKnot, setSelectKnot] = useState('circle')                     //выбор по умолчанию, для визуализации в узлах кружков
-  let [buttonColor, setButtonColor] = useState(false)                       //переключение цвета контуров
+  // let [buttonColor, setButtonColor] = useState(false)                      //переключение цвета контуров
   let [buttonFillColor, setButtonFillColor] = useState(false)               //переключение цвета заливки
 
   let [isDown, setIsDown] = useState(false)                                 //отслеживание нажата ли кнопка на узле
@@ -66,7 +66,7 @@ function Field() {
 
   //ЗАПИСЬ КООРДИНАТ В МАССИВ
 
-  function setCoordinateToArray(e: any) {
+  function setCoordinateToArray(e: any) { //Ошибка типа при выборе MouseEvent - Свойство "getBoundingClientRect" не существует в типе "EventTarget".
 
     if (isDownPolygon === true || isDown === true) {
       console.log("нажато")
@@ -200,9 +200,8 @@ function Field() {
 
   //ОТСЛЕЖИВАНИЕ ПЕРЕМЕЩЕНИЯ ПРИ НАЖАТОЙ КНОПКЕ МЫШИ
 
-  function trackingCoordinatesMove(circleNumber: number, e: any) {
+  function trackingCoordinatesMove(circleNumber: number, e: any) {   //Ошибка типа при выборе MouseEvent - Свойство "getBoundingClientRect" не существует в типе "EventTarget".
     let offset = e.target.getBoundingClientRect() //отслеживание положения поля
-
     if (isDown) {
       //Перетаскивание КРУГА
       let coordinate = [...coordinateToArray]
